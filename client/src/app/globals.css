@@ -1,0 +1,30 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #02B290;
+  --color-secondary: #353535;
+}
+
+@layer utilities {
+  .container {
+    @apply w-11/12 mx-auto;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition;
+  }
+
+  /* Swiper Navigation Arrows Styling */
+  .swiper-button-next,
+  .swiper-button-prev {
+    @apply w-10 h-10 bg-white rounded-full flex items-center justify-center text-gray-800 transition-all duration-300 shadow-md border border-gray-200;
+  }
+
+  .swiper-button-next:hover,
+  .swiper-button-prev:hover {
+    @apply bg-primary text-white shadow-lg border-primary;
+  }
+}
+
