@@ -9,6 +9,7 @@ import {
   Package,
   Plus,
   ShoppingCart,
+  Users,
   LogOut,
   ChevronRight,
   Menu,
@@ -21,9 +22,11 @@ const Dsidebar = () => {
 
   const menuItems = [
     { id: 'home', label: 'Home', icon: Home, color: 'from-blue-500 to-blue-600', href: '/' },
+    { id: 'users', label: 'Users', icon: Users, color: 'from-cyan-500 to-cyan-600', href: '/users' },
     { id: 'slider', label: 'Slider', icon: Sliders, color: 'from-purple-500 to-purple-600', href: '/slider' },
     { id: 'products', label: 'Products', icon: Package, color: 'from-pink-500 to-pink-600', href: '/products' },
     { id: 'addproduct', label: 'Add Product', icon: Plus, color: 'from-green-500 to-green-600', href: '/addproduct' },
+    
     { id: 'orders', label: 'Orders', icon: ShoppingCart, color: 'from-orange-500 to-orange-600', href: '/orders' },
     { id: 'logout', label: 'Logout', icon: LogOut, color: 'from-red-500 to-red-600', href: '/logout' }
   ]
