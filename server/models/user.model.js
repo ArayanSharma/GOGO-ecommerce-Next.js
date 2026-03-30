@@ -3,24 +3,28 @@ import mongoose from 'mongoose';
 const userSchema = new mongoose.Schema({
     name: {
         type: String,
-        required: true,
+        required:[ true,"Name is required"],
         trim: true
     },
     email: {
         type: String,
-        required: true,
+        required: [true, "Email is required"],
         unique: true,
         lowercase: true,
         match: /.+\@.+\..+/
     },
     password: {
         type: String,
-        required: true,
-        minlength: 6
+        required: [true, "Password is required"],
     },
+     password: {
+        type: String,
+        required: [true, "Password is required"],
+    },
+
     phone: {
         type: String,
-        required: true
+        required: [true, "Phone number is required"]
     }
 }, { timestamps: true });
 const UserModel = mongoose.model('User', userSchema);
