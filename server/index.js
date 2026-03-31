@@ -9,6 +9,8 @@ import helmet from 'helmet';
 
 import connectDb from './config/connectDb.js';
 
+import userRouter from './routes/user.route.js';
+
 const app = express();
 
 // Middleware   
@@ -23,6 +25,7 @@ app.get('/', (req, res) => {
     res.json({ message: 'Server is running', port: process.env.PORT });
 });
 
+app.use('/api/users', userRouter);
 
 connectDb().then(() => {
     app.listen(process.env.PORT, () => {

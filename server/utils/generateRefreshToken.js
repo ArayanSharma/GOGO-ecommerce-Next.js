@@ -1,6 +1,7 @@
+import UserModel from "../models/user.model.js";
 import jwt from 'jsonwebtoken';
-import UserModel from "../models/user.model";
-import generateAccessToken from './generateAccesToken';
+
+
 
 export const generateRefreshToken = async (userID) => {
    const token = await jwt.sign(
