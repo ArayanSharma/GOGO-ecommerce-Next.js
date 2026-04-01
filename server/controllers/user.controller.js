@@ -4,6 +4,8 @@ import jwt from 'jsonwebtoken';
 
 import generateAccessToken from "../utils/generateAccessToken.js";
 import generateRefreshToken from "../utils/generateRefreshToken.js";
+import sendEmailFun from "../config/sendEmail.js";
+import verificationEmail from "../utils/verifyEmailTemplate.js";
 
 // Get all users
 export const registerUserController = async (req, res) => {
@@ -11,6 +13,7 @@ export const registerUserController = async (req, res) => {
         let user;
 
         const { name, email, password } = req.body;
+        console.log(name, email, password);
 
         if(!name || !email || !password) {
             return res.status(400).json({ 
@@ -38,23 +41,21 @@ export const registerUserController = async (req, res) => {
             email,
             password: hashedPassword,
             otp: verifyEmail,
+           
             otp_expiry: Date.now() + 10 * 60 * 1000, // OTP valid for 10 minutes
             });
         await user.save();
 
         await sendEmailFun(
-            {
-                sendTo: email,
-                subject: "Email Verification - GOGO ",
-                text:"",
-                html: verificationEmail(name, verifyEmail)
-            }
-        )
+            email,
+            "Email Verification - GOGO",
+            verificationEmail(name, verifyEmail)
+        );
 
         const token = jwt.sign(
             {email: user.email, id: user._id}, 
             
-             process.env.JSON_WEB_TOKEN_SECRET_KEY, 
+             process.env.JWT_SECRET, 
              );
 
              return res.status(200).json({
@@ -65,7 +66,7 @@ export const registerUserController = async (req, res) => {
             });
 
     } catch (error) {
-         return res.status(200).json({
+         return res.status(500).json({
             success: false,
             error: true,
             message: error.message || Error,
@@ -74,6 +75,307 @@ export const registerUserController = async (req, res) => {
     }
 };
 
+export const verifyEmailController = async (req, res) => {
+
+    try {
+        const { email, otp } = req.body;
+        
+        console.log(email, otp);
+        
+        const user = await UserModel.findOne({ email });
+
+        if (!user) {
+            return res.status(400).json({ 
+                message: "User not found",
+                error: true,
+                success: false
+             });
+        }   
+        
+        const isCodeValid = user.otp === otp ;
+        const isNotExpired = user.otp_expiry > Date.now();
+
+        if (isCodeValid && isNotExpired) {
+            user.verify_Email = true;
+            user.otp = null;
+            user.otp_expiry = null;
+            await user.save();
+
+            return res.status(200).json({
+                message: "Email verified successfully",
+                success: true,
+                error: false
+            });
+
+        }
+        else if (!isCodeValid) {
+            return res.status(400).json({
+                message: "Invalid OTP",
+                success: false,
+                error: true
+            });
+        } else {
+            return res.status(400).json({
+                message: "OTP expired",
+                success: false,
+                error: true
+            });
+        }   
+
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            error: true,
+            message: error.message || Error,
+        });
+    }
+};
+
+export const loginUserController = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        const user = await UserModel.findOne({ email });
+
+        if (!user) {
+            return res.status(400).json({ 
+                message: "User not registered",
+                error: true,
+                success: false
+             });
+        }
+
+        if(user.status != "active") {
+            return res.status(400).json({
+                message: "User is not active. Please contact support.",
+                error: true,
+                success: false
+            });
+        }
+
+        if (!user.verify_Email) {
+            return res.status(400).json({
+                message: "Email not verified. Please verify your email.",
+                error: true,
+                success: false
+            });
+        }
+
+        const checkPassword = await bcrypt.compare(password, user.password);
+        if (!checkPassword) {
+            return res.status(400).json({
+                message: "Invalid password",
+                error: true,
+                success: false
+            });
+        }
+
+        const accessToken = generateAccessToken(user?._id);
+        const refreshToken = generateRefreshToken(user?._id);
+        const updateUser = await UserModel.findByIdAndUpdate(user._id,{last_login_date: Date.now()},{returnDocument: 'after'});
+       const cookiesOptions = {
+            httpOnly: true,
+            secure: true,
+            sameSite: "None", 
+        };
+        res.cookie("accessToken", accessToken, cookiesOptions);
+        res.cookie("refreshToken", refreshToken, cookiesOptions);
+
+        return res.status(200).json({
+            message: "User logged in successfully",
+            success: true,
+            error: false,
+            date:{
+            accessToken,
+            refreshToken
+            }
+        });
+         
+        } catch (error) {
+            return res.status(500).json({
+                success: false,
+                error: true,
+                message: error.message || Error,
+            });
+        }
+};
+
+export const logoutsController = async (req, res) => {
+    try {
+        const userId = req.userId;
+
+        const cookiesOptions = {
+            httpOnly: true,
+            secure: true,
+            sameSite: "None",
+        };
+        res.clearCookie("accessToken", cookiesOptions);
+        res.clearCookie("refreshToken", cookiesOptions);
+
+        const remoRefreshToken = await UserModel.findByIdAndUpdate(userId, {
+            refreshToken:"" });
+
+            return res.status(200).json({
+                message: "User logged out successfully",
+                success: true,
+                error: false,
+            });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            error: true,
+            message: error.message || Error,
+        });
+    }
+};
+
+export const forgotPasswordController = async (req, res) => {
+    try{
+
+        const {email} = req.body;
+        const user = await UserModel.findOne({email});
+
+        if(!user){
+            return res.status(400).json({
+                message: "User not found",
+                error: true,
+                success: false
+            });
+        }
+        else{
+            const verifyEmail = Math.floor(100000 + Math.random() * 900000).toString();
+
+            user.otp = verifyEmail;
+            user.otpExpires= Date.now() + 10 * 60 * 1000;
+
+                await user.save();
+
+                await sendEmailFun(
+                    email,
+                    "Password Reset - GOGO",
+                    verificationEmail(user.name, verifyEmail)
+                );
+                return res.status(200).json({
+                    message: "Password reset OTP sent to email",
+                    success: true,
+                    error: false
+                });
+
+        }
+
+    }  catch(error){
+        return res.status(500).json({
+            success: false,
+            error: true,
+            message: error.message || Error,
+        });
+    }
+
+
+};
+
+export const verifyForgetPassword = async (req, res) => {
+    try {
+        const { email, otp } = req.body;
+        const user = await UserModel.findOne({ email });
+
+        if (!user) {
+            return res.status(400).json({
+                message: "User not found",
+                error: true,
+                success: false
+            });
+        }
+
+        if(!email || !otp){
+            return res.status(400).json({
+                message: "Please provide email and OTP",
+                error: true,
+                success: false
+            });
+        }
+
+        if(user.otp !== otp || user.otpExpires < Date.now()){
+            return res.status(400).json({
+                message: "Invalid or expired OTP",
+                error: true,
+                success: false
+            });
+
+            const currentTime = Date.now();
+            if (user.otpExpires < currentTime) {
+
+                return res.status(400).json({
+                    message: "OTP has expired",
+                    error: true,
+                    success: false
+                });
+            }
+            user.otp = "";
+            user.otpExpires = "";
+            await user.save();
+
+            return res.status(200).json({
+                message: "OTP verified successfully",
+                success: true,
+                error: false
+            });
+
+        }
 
 
 
+
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            error: true,
+            message: error.message || Error,
+        });
+    }
+};
+
+//change password
+
+ export const changePasswordController = async (req, res) => {
+    try {
+        const { email, newPassword, confirmPassword } = req.body;
+
+        if(!email || !newPassword || !confirmPassword){
+            return res.status(400).json({
+                message: "Please provide email, new password and confirm password",
+                error: true,    
+                success: false
+            });
+        } 
+        if(newPassword !== confirmPassword){
+            return res.status(400).json({
+                message: "New password and confirm password do not match",
+                error: true,
+                success: false
+            });
+        }
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+        user.password = hashedPassword;
+        user.signUpWithGoogle = false;
+        await user.save();
+        return res.status(200).json({
+            message: "Password changed successfully",
+            success: true,
+            error: false
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            error: true,
+            message: error.message || Error,
+        });
+    }
+};
+
+
+
+          

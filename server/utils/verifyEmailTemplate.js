@@ -1,4 +1,4 @@
-const verificationEmail = (username, otp) => {
+const verificationEmail  = (username, otp) => {
     return `
     <!DOCTYPE html>
     <html>

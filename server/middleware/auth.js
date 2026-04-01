@@ -10,7 +10,7 @@ const auth = (req, res, next) => {
              });
         }
 
-        const decoded = jwt.verify(token, process.env.JSON_WEB_TOKEN_SECRET_KEY);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
         
         if(!decoded) {
             return res.status(401).json({
