@@ -3,12 +3,18 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { Eye, EyeOff } from 'lucide-react';
+import Cookies from 'js-cookie';
+import { postData } from '@/utils/api';
+import { useRouter } from 'next/navigation';
 
-export default function LoginPage() {
+ 
+export default function Login() {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   });
+  const router = useRouter();
+
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -33,9 +39,36 @@ export default function LoginPage() {
         return;
       }
 
-      // Add your login logic here
-      console.log('Logging in with:', formData);
-      // TODO: Connect to backend API
+      // Call backend API to login
+      const res = await postData('/api/users/login', {
+        email: formData.email,
+        password: formData.password,
+      });
+
+      if (res?.success === true && res?.date?.accessToken) {
+        // Store tokens in cookies
+        Cookies.set('accessToken', res.date.accessToken, {
+          expires: 7,
+          secure: true,
+          sameSite: 'Strict'
+        });
+        
+        if (res.date.refreshToken) {
+          Cookies.set('refreshToken', res.date.refreshToken, {
+            expires: 30,
+            secure: true,
+            sameSite: 'Strict'
+          });
+        }
+
+        // Clear any cached email
+        Cookies.remove('userEmail');
+        
+        // Redirect to home
+        router.push('/');
+      } else {
+        setError(res?.message || 'Login failed');
+      }
     } catch (err) {
       setError(err.message || 'Login failed');
     } finally {
@@ -44,7 +77,6 @@ export default function LoginPage() {
   };
 
   const handleGoogleLogin = () => {
-    // Add your Google login logic here
     console.log('Google login clicked');
   };
 

@@ -131,6 +131,66 @@ export const verifyEmailController = async (req, res) => {
     }
 };
 
+export const resendOtpController = async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        if (!email) {
+            return res.status(400).json({
+                message: "Email is required",
+                error: true,
+                success: false
+            });
+        }
+
+        const user = await UserModel.findOne({ email });
+
+        if (!user) {
+            return res.status(400).json({
+                message: "User not found",
+                error: true,
+                success: false
+            });
+        }
+
+        if (user.verify_Email) {
+            return res.status(400).json({
+                message: "Email already verified",
+                error: true,
+                success: false
+            });
+        }
+
+        // Generate new OTP
+        const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
+
+        // Update user with new OTP and expiry
+        user.otp = newOtp;
+        user.otp_expiry = Date.now() + 10 * 60 * 1000; // OTP valid for 10 minutes
+        await user.save();
+
+        // Send email
+        await sendEmailFun(
+            email,
+            "Email Verification - GOGO (Resend)",
+            verificationEmail(user.name, newOtp)
+        );
+
+        return res.status(200).json({
+            message: "OTP sent successfully",
+            success: true,
+            error: false
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            error: true,
+            message: error.message || "Error"
+        });
+    }
+};
+
 export const loginUserController = async (req, res) => {
     try {
         const { email, password } = req.body;

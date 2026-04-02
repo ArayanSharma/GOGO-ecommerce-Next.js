@@ -4,12 +4,20 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Eye, EyeOff } from 'lucide-react';
 
+import { useRouter } from 'next/navigation';
+import Cookies from "js-cookie";
+import { postData } from '@/utils/api';
+
+
+
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
-    fullName: '',
+    name: '',
     email: '',
     password: '',
   });
+
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -28,9 +36,19 @@ export default function RegisterPage() {
     setError('');
 
     try {
-      // Add your registration logic here
-      console.log('Registering with:', formData);
-      // TODO: Connect to backend API
+      const res = await postData('/api/users/register', formData);
+      
+      if (res?.error === false) {
+        Cookies.set('userEmail', formData.email);
+        setFormData({
+          name: '',
+          email: '',
+          password: '',
+        });
+        router.push('/verify');
+      } else {
+        setError(res?.message || 'Registration failed');
+      }
     } catch (err) {
       setError(err.message || 'Registration failed');
     } finally {
@@ -39,10 +57,8 @@ export default function RegisterPage() {
   };
 
   const handleGoogleSignUp = () => {
-    // Add your Google sign-up logic here
     console.log('Google sign-up clicked');
-  };
-
+  }
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="w-full max-w-md bg-white rounded-lg shadow-md p-8 border border-gray-200">
@@ -63,9 +79,9 @@ export default function RegisterPage() {
           {/* Full Name Field */}
           <input
             type="text"
-            name="fullName"
+            name="name"
             placeholder="Full Name"
-            value={formData.fullName}
+            value={formData.name}
             onChange={handleChange}
             required
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent placeholder-gray-400"
