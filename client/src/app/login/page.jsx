@@ -6,6 +6,12 @@ import { Eye, EyeOff } from 'lucide-react';
 import Cookies from 'js-cookie';
 import { postData } from '@/utils/api';
 import { useRouter } from 'next/navigation';
+import {getAuth ,signInWithPopup, GoogleAuthProvider} from 'firebase/auth';
+import { firebaseApp } from '@/utils/firebase';
+const auth = getAuth(firebaseApp);
+const googleProvider = new GoogleAuthProvider();
+
+
 
  
 export default function Login() {
@@ -79,6 +85,35 @@ export default function Login() {
   const handleGoogleLogin = () => {
     console.log('Google login clicked');
   };
+
+  const signWithGoogle = () => {
+
+     signInWithPopup(auth, googleProvider)
+  .then((result) => {
+    // This gives you a Google Access Token. You can use it to access the Google API.
+    const credential = GoogleAuthProvider.credentialFromResult(result);
+    const token = credential.accessToken;
+    // The signed-in user info.
+    const user = result.user;
+    // IdP data available using getAdditionalUserInfo(result)
+    // ...
+
+    // You can send the token to your backend for further processing (e.g., create a session)
+    console.log('Google login successful:', user);
+  }).catch((error) => {
+    // Handle Errors here.
+    const errorCode = error.code;
+    const errorMessage = error.message;
+    // The email of the user's account used.
+    const email = error.customData.email;
+    // The AuthCredential type that was used.
+    const credential = GoogleAuthProvider.credentialFromError(error);
+    // ...
+  });
+
+   
+  }
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
@@ -162,7 +197,7 @@ export default function Login() {
         {/* Google Login Button */}
         <button
           type="button"
-          onClick={handleGoogleLogin}
+          onClick={signWithGoogle}
           className="w-full flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold py-3 px-4 rounded-lg transition duration-200 border border-gray-300"
         >
           <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
