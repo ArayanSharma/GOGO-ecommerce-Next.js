@@ -1,5 +1,4 @@
 import Cookies from "js-cookie";
-import axios from "axios";
 
 const appUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -9,8 +8,9 @@ const postData = async (url, formData) => {
         
         const response = await fetch(appUrl + url, {
             method: "POST",
+            credentials: "include",
             headers: {
-                "Authorization": `Bearer ${Cookies.get("token")}`,
+                "Authorization": `Bearer ${Cookies.get("accessToken") || ""}`,
                 "Content-Type": "application/json",
             },
             body: JSON.stringify(formData),

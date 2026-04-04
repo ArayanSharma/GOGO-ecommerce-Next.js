@@ -10,8 +10,9 @@ import Nav from './Nav';
 import { useAuth } from '@/context/AuthContext';
 
 const Header = () => {
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, userName, userEmail, logout } = useAuth();
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const displayName = userName || (userEmail ? userEmail.split('@')[0] : 'My Account');
 
   return (
    <>
@@ -33,12 +34,13 @@ const Header = () => {
               <div className='relative'>
                 <button 
                   onClick={() => setShowUserMenu(!showUserMenu)}
-                  className='text-gray-700 hover:text-blue-600 transition-colors text-sm font-semibold'
+                  className='text-right text-gray-700 hover:text-blue-600 transition-colors'
                 >
-                  My Account ▼
+                  <p className='text-sm font-semibold leading-tight'>{displayName}</p>
+                  {userEmail && <p className='text-xs text-gray-500 leading-tight'>{userEmail}</p>}
                 </button>
                 {showUserMenu && (
-                  <div className='absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-10'>
+                  <div className='absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10'>
                     <button 
                       onClick={() => {
                         logout();

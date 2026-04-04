@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
 
 const AuthContext = createContext();
@@ -12,44 +12,40 @@ export function useAuth() {
 
 export function AuthProvider({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userName, setUserName] = useState('');
+  const [userEmail, setUserEmail] = useState('');
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
 
   useEffect(() => {
-    // Check if user has a valid token
+    // Middleware handles redirects; context keeps UI auth/user info in sync with cookies.
     const token = Cookies.get('accessToken');
-    
-    if (token) {
-      setIsAuthenticated(true);
-    } else {
-      setIsAuthenticated(false);
+    const nameFromCookie = Cookies.get('userName') || '';
+    const emailFromCookie = Cookies.get('userEmail') || '';
 
-      // Protected routes that require authentication
-      const protectedRoutes = ['/', '/cart', '/wishlist', '/products', '/productdet'];
-      const isProtectedRoute = protectedRoutes.some(route => 
-        pathname === route || pathname.startsWith(route + '/')
-      );
-
-      // If accessing protected route without token, redirect to login
-      if (isProtectedRoute && pathname !== '/login') {
-        router.push('/login');
-      }
-    }
+    setIsAuthenticated(Boolean(token));
+    setUserName(nameFromCookie);
+    setUserEmail(emailFromCookie);
 
     setLoading(false);
-  }, [pathname, router]);
+  }, [pathname]);
 
   const logout = () => {
     Cookies.remove('accessToken');
     Cookies.remove('refreshToken');
+    Cookies.remove('userName');
     Cookies.remove('userEmail');
     setIsAuthenticated(false);
+    setUserName('');
+    setUserEmail('');
     router.push('/login');
   };
 
   const value = {
     isAuthenticated,
+    userName,
+    userEmail,
     loading,
     logout,
   };

@@ -6,10 +6,15 @@ import { Eye, EyeOff } from 'lucide-react';
 import Cookies from 'js-cookie';
 import { postData } from '@/utils/api';
 import { useRouter } from 'next/navigation';
-import {getAuth ,signInWithPopup, GoogleAuthProvider} from 'firebase/auth';
-import { firebaseApp } from '@/utils/firebase';
+import { getAuth, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { firebaseApp } from '@/firebase';
 const auth = getAuth(firebaseApp);
 const googleProvider = new GoogleAuthProvider();
+const isSecureContext = typeof window !== 'undefined' && window.location.protocol === 'https:';
+const authCookieOptions = {
+  secure: isSecureContext,
+  sameSite: isSecureContext ? 'Strict' : 'Lax',
+};
 
 
 
@@ -23,6 +28,7 @@ export default function Login() {
 
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState('');
 
   const handleChange = (e) => {
@@ -55,20 +61,19 @@ export default function Login() {
         // Store tokens in cookies
         Cookies.set('accessToken', res.date.accessToken, {
           expires: 7,
-          secure: true,
-          sameSite: 'Strict'
+          ...authCookieOptions,
         });
         
         if (res.date.refreshToken) {
           Cookies.set('refreshToken', res.date.refreshToken, {
             expires: 30,
-            secure: true,
-            sameSite: 'Strict'
+            ...authCookieOptions,
           });
         }
 
-        // Clear any cached email
-        Cookies.remove('userEmail');
+        // Save basic identity for header UI.
+        Cookies.set('userEmail', formData.email, { expires: 7 });
+        Cookies.set('userName', formData.email.split('@')[0], { expires: 7 });
         
         // Redirect to home
         router.push('/');
@@ -82,37 +87,66 @@ export default function Login() {
     }
   };
 
-  const handleGoogleLogin = () => {
-    console.log('Google login clicked');
+  const signWithGoogle = async () => {
+    setGoogleLoading(true);
+    setError('');
+
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+
+      const fields = {
+        name: user.displayName || user.providerData?.[0]?.displayName || 'Google User',
+        email: user.email || user.providerData?.[0]?.email,
+        password: null,
+        avatar: user.photoURL || user.providerData?.[0]?.photoURL || '',
+        mobile: user.phoneNumber || user.providerData?.[0]?.phoneNumber || '',
+      };
+
+      if (!fields.email) {
+        throw new Error('Google account email is required');
+      }
+
+      const res = await postData('/api/users/authWithGoogle', fields);
+
+      if (res?.success === true) {
+        const accessToken = res?.data?.accessToken;
+        const refreshToken = res?.data?.refreshToken;
+        const userName = res?.data?.userName;
+        const userEmail = res?.data?.userEmail;
+
+        if (accessToken) {
+          Cookies.set('accessToken', accessToken, {
+            expires: 7,
+            ...authCookieOptions,
+          });
+        }
+
+        if (refreshToken) {
+          Cookies.set('refreshToken', refreshToken, {
+            expires: 30,
+            ...authCookieOptions,
+          });
+        }
+
+        if (userName) {
+          Cookies.set('userName', userName, { expires: 7 });
+        }
+
+        if (userEmail) {
+          Cookies.set('userEmail', userEmail, { expires: 7 });
+        }
+
+        router.push('/');
+      } else {
+        setError(res?.message || 'Google login failed');
+      }
+    } catch (err) {
+      setError(err?.message || 'Google login failed');
+    } finally {
+      setGoogleLoading(false);
+    }
   };
-
-  const signWithGoogle = () => {
-
-     signInWithPopup(auth, googleProvider)
-  .then((result) => {
-    // This gives you a Google Access Token. You can use it to access the Google API.
-    const credential = GoogleAuthProvider.credentialFromResult(result);
-    const token = credential.accessToken;
-    // The signed-in user info.
-    const user = result.user;
-    // IdP data available using getAdditionalUserInfo(result)
-    // ...
-
-    // You can send the token to your backend for further processing (e.g., create a session)
-    console.log('Google login successful:', user);
-  }).catch((error) => {
-    // Handle Errors here.
-    const errorCode = error.code;
-    const errorMessage = error.message;
-    // The email of the user's account used.
-    const email = error.customData.email;
-    // The AuthCredential type that was used.
-    const credential = GoogleAuthProvider.credentialFromError(error);
-    // ...
-  });
-
-   
-  }
 
 
   return (
@@ -198,12 +232,13 @@ export default function Login() {
         <button
           type="button"
           onClick={signWithGoogle}
+          disabled={googleLoading}
           className="w-full flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold py-3 px-4 rounded-lg transition duration-200 border border-gray-300"
         >
           <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
             <image href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ctext y='20' font-size='20' fill='%234285F4'%3EG%3C/text%3E%3C/svg%3E" width="20" height="20" />
           </svg>
-          LOGIN WITH GOOGLE
+          {googleLoading ? 'CONNECTING...' : 'LOGIN WITH GOOGLE'}
         </button>
       </div>
     </div>

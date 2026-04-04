@@ -105,13 +105,15 @@ const Dheader = () => {
           <div className="flex items-center gap-4 ml-auto" suppressHydrationWarning>
             
             {/* Date & Time */}
-            <div className="header-item hidden lg:flex items-center gap-2 px-4 py-2.5 bg-slate-800/50 rounded-lg border border-slate-700/50 shadow-lg hover:shadow-purple-500/20 hover:border-purple-500/30 transition-all duration-300 backdrop-blur-sm group" suppressHydrationWarning>
-              <Clock size={16} className="text-purple-400 group-hover:text-purple-300 transition-colors" />
-              <div className="text-right">
-                <p className="text-xs text-slate-500 group-hover:text-slate-400 transition-colors">Current Time</p>
-                <p className="text-sm font-bold text-white" suppressHydrationWarning>{currentTime}</p>
+            {isClient && (
+              <div className="header-item hidden lg:flex items-center gap-2 px-4 py-2.5 bg-slate-800/50 rounded-lg border border-slate-700/50 shadow-lg hover:shadow-purple-500/20 hover:border-purple-500/30 transition-all duration-300 backdrop-blur-sm group" suppressHydrationWarning>
+                <Clock size={16} className="text-purple-400 group-hover:text-purple-300 transition-colors" />
+                <div className="text-right">
+                  <p className="text-xs text-slate-500 group-hover:text-slate-400 transition-colors">Current Time</p>
+                  <p className="text-sm font-bold text-white">{currentTime}</p>
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Notifications */}
             <div className="header-item relative">

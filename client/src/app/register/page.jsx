@@ -7,7 +7,16 @@ import { Eye, EyeOff } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Cookies from "js-cookie";
 import { postData } from '@/utils/api';
+import { getAuth, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { firebaseApp } from '@/firebase';
 
+const auth = getAuth(firebaseApp);
+const googleProvider = new GoogleAuthProvider();
+const isSecureContext = typeof window !== 'undefined' && window.location.protocol === 'https:';
+const authCookieOptions = {
+  secure: isSecureContext,
+  sameSite: isSecureContext ? 'Strict' : 'Lax',
+};
 
 
 export default function RegisterPage() {
@@ -20,6 +29,7 @@ export default function RegisterPage() {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState('');
 
   const handleChange = (e) => {
@@ -56,9 +66,66 @@ export default function RegisterPage() {
     }
   };
 
-  const handleGoogleSignUp = () => {
-    console.log('Google sign-up clicked');
-  }
+  const handleGoogleSignUp = async () => {
+    setGoogleLoading(true);
+    setError('');
+
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+
+      const fields = {
+        name: user.displayName || user.providerData?.[0]?.displayName || 'Google User',
+        email: user.email || user.providerData?.[0]?.email,
+        password: null,
+        avatar: user.photoURL || user.providerData?.[0]?.photoURL || '',
+        mobile: user.phoneNumber || user.providerData?.[0]?.phoneNumber || '',
+      };
+
+      if (!fields.email) {
+        throw new Error('Google account email is required');
+      }
+
+      const res = await postData('/api/users/authWithGoogle', fields);
+
+      if (res?.success === true) {
+        const accessToken = res?.data?.accessToken;
+        const refreshToken = res?.data?.refreshToken;
+        const userName = res?.data?.userName;
+        const userEmail = res?.data?.userEmail;
+
+        if (accessToken) {
+          Cookies.set('accessToken', accessToken, {
+            expires: 7,
+            ...authCookieOptions,
+          });
+        }
+
+        if (refreshToken) {
+          Cookies.set('refreshToken', refreshToken, {
+            expires: 30,
+            ...authCookieOptions,
+          });
+        }
+
+        if (userName) {
+          Cookies.set('userName', userName, { expires: 7 });
+        }
+
+        if (userEmail) {
+          Cookies.set('userEmail', userEmail, { expires: 7 });
+        }
+
+        router.push('/');
+      } else {
+        setError(res?.message || 'Google sign-up failed');
+      }
+    } catch (err) {
+      setError(err?.message || 'Google sign-up failed');
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="w-full max-w-md bg-white rounded-lg shadow-md p-8 border border-gray-200">
@@ -145,12 +212,13 @@ export default function RegisterPage() {
         <button
           type="button"
           onClick={handleGoogleSignUp}
+          disabled={googleLoading}
           className="w-full flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold py-3 px-4 rounded-lg transition duration-200 border border-gray-300"
         >
           <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
             <image href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ctext y='20' font-size='20' fill='%234285F4'%3EG%3C/text%3E%3C/svg%3E" width="20" height="20" />
           </svg>
-          SIGN UP WITH GOOGLE
+          {googleLoading ? 'CONNECTING...' : 'SIGN UP WITH GOOGLE'}
         </button>
       </div>
     </div>

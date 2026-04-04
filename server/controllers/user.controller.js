@@ -436,6 +436,79 @@ export const verifyForgetPassword = async (req, res) => {
     }
 };
 
+export async function authWithGoogle(req, res) {
+    const { name, email, password, avatar, mobile, role } = req.body;
 
+    try {
+        const existingUser = await UserModel.findOne({ email });
 
-          
+        const cookieOptions = {
+            httpOnly: true,
+            secure: true,
+            sameSite: "None",
+        };
+
+        if (!existingUser) {
+            const user = new UserModel({
+                name,
+                email,
+                password,
+                avatar,
+                mobile,           // ✅ was: moblie
+                role,
+                verify_Email: true,
+                signUpWithGoogle: true,
+                singUPwithGoogle: true,
+            });
+            await user.save();
+
+            const accessToken = await generateAccessToken(user._id);
+            const refreshToken = await generateRefreshToken(user._id);
+
+            await UserModel.findByIdAndUpdate(user._id, { last_login_date: Date.now() });
+
+            res.cookie("accessToken", accessToken, cookieOptions);
+            res.cookie("refreshToken", refreshToken, cookieOptions);
+
+            return res.status(201).json({  // ✅ 201 for resource creation
+                message: "User authenticated with Google successfully",
+                success: true,
+                error: false,
+                data: {
+                    accessToken,
+                    refreshToken,
+                    userEmail: user.email,
+                    userName: user.name,
+                }
+            });
+
+        } else {
+            const accessToken = await generateAccessToken(existingUser._id);
+            const refreshToken = await generateRefreshToken(existingUser._id);
+
+            await UserModel.findByIdAndUpdate(existingUser._id, { last_login_date: Date.now() });
+
+            res.cookie("accessToken", accessToken, cookieOptions);
+            res.cookie("refreshToken", refreshToken, cookieOptions);
+
+            return res.status(200).json({   // ✅ was: missing response entirely
+                message: "User authenticated with Google successfully",
+                success: true,
+                error: false,
+                data: {
+                    accessToken,
+                    refreshToken,
+                    userEmail: existingUser.email,
+                    userName: existingUser.name,
+                }
+            });
+        }
+
+    } catch (error) {   // ✅ was: catch nested inside try, outside closing brace
+        return res.status(500).json({
+            success: false,
+            error: true,
+            message: error.message || "An error occurred during Google authentication"
+        });
+    }
+}

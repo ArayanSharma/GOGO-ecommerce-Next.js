@@ -15,7 +15,9 @@ const userSchema = new mongoose.Schema({
     },
     password: {
         type: String,
-        required: [true, "Password is required"],
+        required: function requiredPassword() {
+            return !this.signUpWithGoogle;
+        },
     },
      avatar: {
         type: String,
@@ -27,7 +29,7 @@ const userSchema = new mongoose.Schema({
         default: null
     },
     verify_Email: {
-        type: Number,
+        type: Boolean,
         default: false
     },
     accessToken: {
@@ -71,10 +73,16 @@ const userSchema = new mongoose.Schema({
         enum: ["User", "Admin"],
         default: "User"
     },
-    singUPwithGoogle: {
+    signUpWithGoogle: {
         type: Boolean,
         default: false
-    } 
+    },
+    // Backward-compatibility for existing records using the old typo.
+    singUPwithGoogle: {
+        type: Boolean,
+        default: false,
+        select: false,
+    }
  }, { timestamps: true });
 const UserModel = mongoose.model('User', userSchema);
 export default UserModel;
