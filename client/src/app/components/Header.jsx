@@ -19,9 +19,9 @@ const Header = () => {
    <div className='headerWrapper sticky top-0 z-50 bg-white py-4'>
     <header className="sticky top-0 z-50 bg-white shadow-sm py-4">
     <div className='max-w-7xl mx-auto px-4 flex items-center justify-between gap-8'>
-        <div className='logo flex-shrink-0'>
+        <div className='logo shrink-0'>
             <Link href="/" className='block'> 
-            <Image src={"/gog.png"} alt='logo' width={230} height={61} loading="eager" />
+          <Image src={"/gog.png"} alt='logo' width={230} height={61} loading="eager" className='h-auto w-auto' />
             </Link>
         </div>
         

@@ -38,13 +38,13 @@ const page = () => {
   };
 
   return (
-    <div className='min-h-screen bg-gradient-to-br from-blue-500 via-blue-600 to-purple-700 flex items-center justify-center p-4'>
+    <div className='min-h-screen bg-linear-to-br from-blue-500 via-blue-600 to-purple-700 flex items-center justify-center p-4'>
       <div className='w-full max-w-md'>
         {/* Card */}
         <div className='bg-white shadow-2xl rounded-lg p-8'>
           {/* Header */}
           <div className='mb-8 text-center'>
-            <div className='w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4'>
+            <div className='w-16 h-16 bg-linear-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4'>
               <span className='text-white text-2xl font-bold'>A</span>
             </div>
             <h1 className='text-3xl font-bold text-gray-800 mb-2'>Admin Login</h1>
@@ -102,7 +102,7 @@ const page = () => {
               type='submit'
               href=''
               disabled={loading}
-              className='w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold py-3 rounded-lg hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed'
+              className='w-full bg-linear-to-r from-blue-500 to-purple-600 text-white font-semibold py-3 rounded-lg hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed'
             >
               {loading ? 'Logging in...' : 'Login'}
             </button>

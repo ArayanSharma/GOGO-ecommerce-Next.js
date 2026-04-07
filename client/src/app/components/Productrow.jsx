@@ -1,57 +1,84 @@
 
 'use client'
 
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-// Import Swiper React components
-import { Swiper, SwiperSlide } from 'swiper/react';
-
-import { Navigation } from 'swiper/modules';
 import Productitem from './Productitem';
+import { fetchProducts } from '../utils/api';
+
+const getProductsForRow = (products, title) => {
+  const normalizedTitle = String(title || '').toLowerCase();
+
+  if (normalizedTitle.includes('latest')) {
+    return products.filter((product) => String(product.section || '').toLowerCase() === 'latest products');
+  }
+
+  if (normalizedTitle.includes('new arrivals')) {
+    return products.filter((product) => String(product.section || '').toLowerCase() === 'new arrivals');
+  }
+
+  if (normalizedTitle.includes('breakfast')) {
+    return products.filter((product) => String(product.category || '').toLowerCase() === 'breakfast & bakery');
+  }
+
+  return products;
+};
 
 const Productrow = (Props) => {
-  // Sample products - Replace with API data
-  const products = [
-    { id: '1', category: 'Beverages', name: '100 Percent Apple Juice - 64 fl oz Bottle', image: '/p1.webp', rating: 4, price: 25.99, originalPrice: 30.10 },
-    { id: '2', category: 'Breakfast & Bakery', name: 'Organic Whole Wheat Bread', image: '/p1.webp', rating: 5, price: 4.99, originalPrice: 6.50 },
-    { id: '3', category: 'Meat & Seafood', name: 'Fresh Salmon Fillet', image: '/p1.webp', rating: 4.5, price: 18.99, originalPrice: 22.99 },
-    { id: '4', category: 'Frozen Food', name: 'Frozen Mixed Vegetables', image: '/p1.webp', rating: 4, price: 3.99, originalPrice: 5.49 },
-    { id: '5', category: 'Dairy', name: 'Organic Milk - 1 Gallon', image: '/p1.webp', rating: 4.5, price: 4.49, originalPrice: 5.99 },
-    { id: '6', category: 'Snacks', name: 'Organic Almonds - 1 lb', image: '/p1.webp', rating: 5, price: 12.99, originalPrice: 15.99 },
-  ];
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        setLoading(true);
+        const data = await fetchProducts();
+        setProducts(data);
+      } catch (error) {
+        console.error('Failed to fetch homepage products:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProducts();
+  }, []);
+
+  const visibleProducts = useMemo(
+    () => getProductsForRow(products, Props.title).slice(0, 6),
+    [products, Props.title]
+  );
 
   return (
-  <section className='bg-white py-3 mt-6 rounded-md '>
-        <div className='container'>
-            <div className='flex items-center justify-between mb-6 gap-6'>
-                <div className='coll w-[30%]'>
-                    <h2 className='text-2xl font-[600] text-gray-800'>{Props.title}</h2>
-                    
-                   
-                </div>
-                <div className='coll w-[70%] flex items-center justify-end'>
-                    <Link href='/products' className='text-cyan-500 font-[600] flex items-center gap-2 hover:gap-4 transition-all'>
-                        View All <span>→</span>
-                    </Link>
-                </div>
-            </div>
-            <div className='grid grid-cols-6 gap-4 mt-8'>
-                {products.map((product) => (
-                  <Productitem 
-                    key={product.id}
-                    id={product.id}
-                    category={product.category}
-                    name={product.name}
-                    image={product.image}
-                    rating={product.rating}
-                    price={product.price}
-                    originalPrice={product.originalPrice}
-                  />
-                ))}
-            </div>
+    <section className='bg-white py-4 mt-6 rounded-2xl shadow-sm ring-1 ring-emerald-100'>
+      <div className='container'>
+        <div className='mb-6 flex items-center justify-between gap-6'>
+          <div className='coll w-[30%]'>
+            <p className='text-xs font-semibold uppercase tracking-[0.25em] text-emerald-600'>Featured collection</p>
+            <h2 className='text-2xl font-bold text-slate-900'>{Props.title}</h2>
+          </div>
+          <div className='coll w-[70%] flex items-center justify-end'>
+            <Link href='/products' className='text-emerald-600 font-semibold flex items-center gap-2 hover:gap-4 transition-all'>
+              View All <span>→</span>
+            </Link>
+          </div>
         </div>
-      </section>
-            
+
+        {loading ? (
+          <div className='rounded-2xl border border-emerald-100 bg-emerald-50/50 p-6 text-slate-600'>Loading products...</div>
+        ) : visibleProducts.length > 0 ? (
+          <div className='grid grid-cols-2 gap-4 mt-8 lg:grid-cols-3 xl:grid-cols-6'>
+            {visibleProducts.map((product) => (
+              <Productitem key={product.id} {...product} />
+            ))}
+          </div>
+        ) : (
+          <div className='rounded-2xl border border-emerald-100 bg-emerald-50/50 p-6 text-slate-600'>
+            No products available for this section yet.
+          </div>
+        )}
+      </div>
+    </section>
   )
 }
 

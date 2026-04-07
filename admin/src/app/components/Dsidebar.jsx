@@ -21,11 +21,11 @@ const Dsidebar = () => {
   const [activeItem, setActiveItem] = useState('home')
 
   const menuItems = [
-    { id: 'home', label: 'Home', icon: Home, color: 'from-blue-500 to-blue-600', href: '/' },
-    { id: 'users', label: 'Users', icon: Users, color: 'from-cyan-500 to-cyan-600', href: '/users' },
-    { id: 'slider', label: 'Slider', icon: Sliders, color: 'from-purple-500 to-purple-600', href: '/slider' },
-    { id: 'products', label: 'Products', icon: Package, color: 'from-pink-500 to-pink-600', href: '/products' },
-    { id: 'addproduct', label: 'Add Product', icon: Plus, color: 'from-green-500 to-green-600', href: '/addproduct' },
+    { id: 'home', label: 'Home', icon: Home, color: 'bg-emerald-600', href: '/' },
+    { id: 'users', label: 'Users', icon: Users, color: 'bg-emerald-500', href: '/users' },
+    { id: 'slider', label: 'Slider', icon: Sliders, color: 'bg-amber-500', href: '/slider' },
+    { id: 'products', label: 'Products', icon: Package, color: 'bg-teal-500', href: '/products' },
+    { id: 'addproduct', label: 'Add Product', icon: Plus, color: 'bg-yellow-500', href: '/addproduct' },
     
     { id: 'orders', label: 'Orders', icon: ShoppingCart, color: 'from-orange-500 to-orange-600', href: '/orders' },
     { id: 'logout', label: 'Logout', icon: LogOut, color: 'from-red-500 to-red-600', href: '/logout' }
@@ -77,29 +77,29 @@ const Dsidebar = () => {
       {/* Mobile Menu Toggle */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed top-4 left-4 z-50 md:hidden bg-gradient-to-r from-slate-800 to-slate-900 text-white p-2 rounded-lg shadow-lg hover:shadow-xl transition-shadow"
+        className="fixed top-4 left-4 z-50 md:hidden bg-emerald-600 text-white p-2 rounded-lg shadow-lg hover:shadow-xl transition-shadow"
       >
         {isOpen ? <X size={24} /> : <Menu size={24} />}
       </button>
 
       {/* Sidebar */}
       <div
-        className={`sidebar-wrapper h-full bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 text-white shadow-2xl transition-all duration-300 ease-in-out w-64 md:w-64 flex flex-col border-r border-slate-700/50 ${
+        className={`sidebar-wrapper h-full bg-white text-slate-800 shadow-2xl transition-all duration-300 ease-in-out w-64 md:w-64 flex flex-col border-r border-emerald-100/90 ${
           isOpen ? 'translate-x-0' : 'hidden md:flex'
         } md:translate-x-0 z-40`}
       >
         {/* Header */}
-        <div className="p-6 border-b border-slate-700/50 bg-gradient-to-r from-slate-800/80 to-transparent backdrop-blur-sm">
+        <div className="p-6 border-b border-emerald-100/90 bg-emerald-50/70 backdrop-blur-sm">
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-11 h-11 bg-gradient-to-br from-blue-500 via-purple-600 to-pink-500 rounded-xl flex items-center justify-center font-bold text-lg shadow-lg relative overflow-hidden group">
+            <div className="w-11 h-11 bg-emerald-600 rounded-xl flex items-center justify-center font-bold text-lg shadow-lg relative overflow-hidden group text-white">
               <div className="absolute inset-0 bg-white/10 group-hover:bg-white/20 transition-all" />
               <span className="relative">A</span>
             </div>
             <div>
-              <h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+              <h1 className="text-xl font-bold text-emerald-700">
                 Admin
               </h1>
-              <p className="text-xs text-slate-500">Shop Manager</p>
+              <p className="text-xs text-emerald-700/80">Shop Manager</p>
             </div>
           </div>
         </div>
@@ -117,7 +117,7 @@ const Dsidebar = () => {
               >
                 {/* Active Indicator */}
                 {isActive && (
-                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-500 via-purple-500 to-transparent rounded-r-full active-indicator shadow-lg shadow-blue-500/50" />
+                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500 rounded-r-full active-indicator shadow-lg shadow-emerald-500/40" />
                 )}
 
                 {/* Menu Button */}
@@ -126,13 +126,13 @@ const Dsidebar = () => {
                     onClick={() => handleMenuClick(item.id)}
                     className={`menu-item-click w-full px-4 py-3.5 rounded-xl transition-all duration-300 flex items-center gap-3 relative overflow-hidden ${
                       isActive
-                        ? `bg-gradient-to-r ${item.color} text-white shadow-lg shadow-blue-500/30`
-                        : 'text-slate-300 hover:bg-slate-700/40 group-hover:text-slate-100'
+                        ? `${item.color} text-white shadow-lg shadow-emerald-500/30`
+                        : 'text-slate-700 hover:bg-emerald-100/70 group-hover:text-emerald-800'
                     }`}
                   >
                     {/* Hover Background */}
                     <div
-                      className={`absolute inset-0 bg-gradient-to-r ${item.color} opacity-0 group-hover:opacity-5 transition-opacity duration-300`}
+                      className='absolute inset-0 bg-emerald-500 opacity-0 group-hover:opacity-5 transition-opacity duration-300'
                     />
 
                     {/* Icon */}
@@ -140,7 +140,7 @@ const Dsidebar = () => {
                       className={`relative p-2.5 rounded-lg transition-all duration-300 ${
                         isActive
                           ? 'bg-white/20 shadow-lg'
-                          : 'bg-slate-700/30 group-hover:bg-slate-600/50'
+                          : 'bg-emerald-100/70 group-hover:bg-emerald-200/80'
                       }`}
                     >
                       <Icon
@@ -148,7 +148,7 @@ const Dsidebar = () => {
                         className={`${
                           isActive
                             ? 'text-white'
-                            : 'text-slate-400 group-hover:text-slate-200'
+                            : 'text-emerald-700 group-hover:text-emerald-800'
                         }`}
                       />
                     </div>
@@ -173,19 +173,19 @@ const Dsidebar = () => {
         </nav>
 
         {/* Footer Stats */}
-        <div className="p-4 border-t border-slate-700/50 bg-gradient-to-t from-slate-900/80 to-transparent backdrop-blur-sm">
+        <div className="p-4 border-t border-emerald-100/90 bg-emerald-50/70 backdrop-blur-sm">
           <div className="grid grid-cols-3 gap-2">
-            <div className="p-3 bg-gradient-to-br from-yellow-500/10 to-yellow-600/5 rounded-lg hover:from-yellow-500/20 hover:to-yellow-600/10 transition-all cursor-pointer border border-yellow-500/20 group">
-              <p className="text-yellow-400 font-bold text-base">24</p>
-              <p className="text-slate-500 text-xs group-hover:text-slate-400 transition-colors">Orders</p>
+            <div className="p-3 bg-yellow-100 rounded-lg hover:bg-yellow-200/80 transition-all cursor-pointer border border-yellow-300/60 group">
+              <p className="text-amber-700 font-bold text-base">24</p>
+              <p className="text-amber-800/70 text-xs group-hover:text-amber-900 transition-colors">Orders</p>
             </div>
-            <div className="p-3 bg-gradient-to-br from-green-500/10 to-green-600/5 rounded-lg hover:from-green-500/20 hover:to-green-600/10 transition-all cursor-pointer border border-green-500/20 group">
-              <p className="text-green-400 font-bold text-base">156</p>
-              <p className="text-slate-500 text-xs group-hover:text-slate-400 transition-colors">Products</p>
+            <div className="p-3 bg-emerald-100 rounded-lg hover:bg-emerald-200/80 transition-all cursor-pointer border border-emerald-300/60 group">
+              <p className="text-emerald-700 font-bold text-base">156</p>
+              <p className="text-emerald-900/70 text-xs group-hover:text-emerald-900 transition-colors">Products</p>
             </div>
-            <div className="p-3 bg-gradient-to-br from-blue-500/10 to-blue-600/5 rounded-lg hover:from-blue-500/20 hover:to-blue-600/10 transition-all cursor-pointer border border-blue-500/20 group">
-              <p className="text-blue-400 font-bold text-base">89</p>
-              <p className="text-slate-500 text-xs group-hover:text-slate-400 transition-colors">Users</p>
+            <div className="p-3 bg-lime-100 rounded-lg hover:bg-lime-200/80 transition-all cursor-pointer border border-emerald-300/60 group">
+              <p className="text-emerald-700 font-bold text-base">89</p>
+              <p className="text-emerald-900/70 text-xs group-hover:text-emerald-900 transition-colors">Users</p>
             </div>
           </div>
         </div>
@@ -195,7 +195,7 @@ const Dsidebar = () => {
       {isOpen && (
         <div
           onClick={() => setIsOpen(false)}
-          className="fixed inset-0 bg-black/60 md:hidden z-30 backdrop-blur-sm"
+          className="fixed inset-0 bg-emerald-900/30 md:hidden z-30 backdrop-blur-sm"
         />
       )}
     </div>

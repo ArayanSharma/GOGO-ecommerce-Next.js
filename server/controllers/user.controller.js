@@ -7,6 +7,66 @@ import generateRefreshToken from "../utils/generateRefreshToken.js";
 import sendEmailFun from "../config/sendEmail.js";
 import verificationEmail from "../utils/verifyEmailTemplate.js";
 
+export const getAllUsersController = async (req, res) => {
+    try {
+        const users = await UserModel.find()
+            .select("-password")
+            .sort({ createdAt: -1 });
+
+        return res.status(200).json({
+            success: true,
+            error: false,
+            data: users,
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            error: true,
+            message: error.message || "Failed to fetch users",
+        });
+    }
+};
+
+export const deleteUserController = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        if (!id) {
+            return res.status(400).json({
+                success: false,
+                error: true,
+                message: "User ID is required",
+            });
+        }
+
+        const deletedUser = await UserModel.findByIdAndDelete(id);
+
+        if (!deletedUser) {
+            return res.status(404).json({
+                success: false,
+                error: true,
+                message: "User not found",
+            });
+        }
+
+        const userData = deletedUser.toObject();
+        delete userData.password;
+
+        return res.status(200).json({
+            success: true,
+            error: false,
+            message: "User deleted successfully",
+            data: userData,
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            error: true,
+            message: error.message || "Failed to delete user",
+        });
+    }
+};
+
 // Get all users
 export const registerUserController = async (req, res) => {
     try {

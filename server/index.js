@@ -11,14 +11,34 @@ import connectDb from './config/connectDb.js';
 
 import userRouter from './routes/user.route.js';
 import homeSliderRouter from './routes/homeSlider.route.js';
+import productRouter from './routes/product.route.js';
 
 const app = express();
 
 const allowedOrigins = [
     process.env.CLIENT_URL,
+    process.env.ADMIN_URL,
     'http://localhost:3000',
     'http://localhost:3001',
+    'http://localhost:3002',
+    'http://localhost:3003',
 ].filter(Boolean);
+
+const isDevLocalOrigin = (origin) => {
+    try {
+        const parsed = new URL(origin);
+        const host = parsed.hostname;
+
+        if (host === 'localhost' || host === '127.0.0.1') {
+            return true;
+        }
+
+        // Allow common private network IP ranges for local testing across devices.
+        return /^10\./.test(host) || /^192\.168\./.test(host) || /^172\.(1[6-9]|2\d|3[0-1])\./.test(host);
+    } catch {
+        return false;
+    }
+};
 
 // Middleware   
 app.use(express.json());
@@ -26,7 +46,7 @@ app.use(cors({
     origin: function (origin, callback) {
         // Allow non-browser requests (no Origin header), like server-to-server or Postman.
         if (!origin) return callback(null, true);
-        if (allowedOrigins.includes(origin)) return callback(null, true);
+        if (allowedOrigins.includes(origin) || isDevLocalOrigin(origin)) return callback(null, true);
         return callback(new Error('Not allowed by CORS'));
     },
     credentials: true,
@@ -45,6 +65,7 @@ app.get('/', (req, res) => {
 
 app.use('/api/users', userRouter);
 app.use('/api/sliders', homeSliderRouter);
+app.use('/api/products', productRouter);
 
 connectDb().then(() => {
     app.listen(process.env.PORT, () => {

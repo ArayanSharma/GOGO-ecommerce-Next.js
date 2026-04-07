@@ -1,9 +1,11 @@
 import { Router } from "express";
-import { registerUserController , verifyEmailController, resendOtpController, loginUserController, logoutsController, forgotPasswordController, verifyForgetPassword, changePasswordController, authWithGoogle } from "../controllers/user.controller.js";
+import { registerUserController , verifyEmailController, resendOtpController, loginUserController, logoutsController, forgotPasswordController, verifyForgetPassword, changePasswordController, authWithGoogle, getAllUsersController, deleteUserController } from "../controllers/user.controller.js";
 import auth from "../middleware/auth.js";
 
 const userRouter = Router();
+userRouter.get("/all", getAllUsersController);
 userRouter.post("/register", registerUserController);
+userRouter.delete("/:id", deleteUserController);
 
 userRouter.post("/verifyEmail", verifyEmailController);
 

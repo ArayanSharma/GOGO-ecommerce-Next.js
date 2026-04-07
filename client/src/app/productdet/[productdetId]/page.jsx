@@ -1,284 +1,274 @@
 'use client'
 
-import React, { useState } from 'react'
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Pagination, Thumbs } from "swiper/modules";
-import "swiper/css";
-import "swiper/css/navigation";
-import "swiper/css/pagination";
-import Button from '@mui/material/Button';
+import React, { useEffect, useMemo, useState } from 'react'
+import { Swiper, SwiperSlide } from 'swiper/react'
+import { Navigation, Pagination, Thumbs } from 'swiper/modules'
+import 'swiper/css'
+import 'swiper/css/navigation'
+import 'swiper/css/pagination'
+import Button from '@mui/material/Button'
 import Rating from '@mui/material/Rating'
 import { useParams } from 'next/navigation'
-import Productrow from '@/app/components/Productrow';
-
-// Mock product data - Replace with API call
-const MOCK_PRODUCTS = {
-  '1': {
-    id: '1',
-    name: '100 Percent Apple Juice - 64 fl oz Bottle',
-    category: 'Beverages',
-    price: 25.99,
-    originalPrice: 30.10,
-    rating: 4,
-    reviews: 128,
-    inStock: true,
-    quantity: 50,
-    images: ['/p1.webp', '/p1.webp', '/p1.webp'],
-    description: 'Pure, refreshing apple juice made from 100% apples. No added sugars, preservatives, or artificial flavors. Perfect for breakfast or anytime refreshment.',
-    details: {
-      brand: 'Pure Apple',
-      weight: '64 fl oz (1.89 L)',
-      ingredients: 'Apple juice concentrate, water',
-      manufacturer: 'Fresh Juice Co.',
-      origin: 'USA'
-    }
-  },
-  '2': {
-    id: '2',
-    name: 'Organic Whole Wheat Bread',
-    category: 'Breakfast & Bakery',
-    price: 4.99,
-    originalPrice: 6.50,
-    rating: 5,
-    reviews: 245,
-    inStock: true,
-    quantity: 100,
-    images: ['/p1.webp', '/p1.webp', '/p1.webp'],
-    description: 'Fresh, hearty organic whole wheat bread made with natural ingredients. No preservatives, additives, or artificial colors.',
-    details: {
-      brand: 'Organic Bakery',
-      weight: '24 oz (680g)',
-      ingredients: 'Whole wheat flour, water, salt, yeast',
-      manufacturer: 'Local Bakery',
-      origin: 'USA'
-    }
-  },
-  '3': {
-    id: '3',
-    name: 'Fresh Salmon Fillet',
-    category: 'Meat & Seafood',
-    price: 18.99,
-    originalPrice: 22.99,
-    rating: 4.5,
-    reviews: 89,
-    inStock: true,
-    quantity: 30,
-    images: ['/p1.webp', '/p1.webp', '/p1.webp'],
-    description: 'Premium quality fresh salmon fillet. Rich in Omega-3 fatty acids. Perfect for grilling, baking, or pan-searing.',
-    details: {
-      brand: 'Ocean Fresh',
-      weight: '8 oz (227g)',
-      type: 'Wild Caught',
-      manufacturer: 'Ocean Fresh Co.',
-      origin: 'Alaska'
-    }
-  }
-};
+import Productrow from '@/app/components/Productrow'
+import { fetchProductById } from '@/app/utils/api'
 
 const ProductDetail = () => {
-  const params = useParams();
-  const productId = params.productdetId;
-  const [quantity, setQuantity] = useState(1);
-  const [thumbsSwiper, setThumbsSwiper] = useState(null);
-  const [mainSwiper, setMainSwiper] = useState(null);
+  const params = useParams()
+  const productId = params.productdetId
+  const [quantity, setQuantity] = useState(1)
+  const [thumbsSwiper, setThumbsSwiper] = useState(null)
+  const [product, setProduct] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
-  // Get product data
-  const product = MOCK_PRODUCTS[productId] || MOCK_PRODUCTS['1'];
+  useEffect(() => {
+    const loadProduct = async () => {
+      try {
+        setLoading(true)
+        setError('')
+        const data = await fetchProductById(productId)
+        setProduct(data)
+      } catch (loadError) {
+        console.error('Failed to load product details:', loadError)
+        setError(loadError.message || 'Failed to load product')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    if (productId) {
+      loadProduct()
+    }
+  }, [productId])
+
+  const images = useMemo(() => {
+    if (!product?.image) {
+      return ['/p1.webp', '/p1.webp', '/p1.webp']
+    }
+
+    return [product.image, product.image, product.image]
+  }, [product])
+
+  const inStock = Number(product?.stock || 0) > 0
+  const price = Number(product?.price || 0)
+  const originalPrice = Number(product?.originalPrice || (price > 0 ? price * 1.15 : 0))
+  const discount = originalPrice > 0 ? Math.max(0, Math.round((1 - price / originalPrice) * 100)) : 0
+  const rating = Number(product?.rating || 4)
+  const quantityLimit = Math.max(1, Number(product?.stock || 1))
 
   const handleAddToCart = () => {
-    console.log(`Added ${quantity} of product ${productId} to cart`);
-    // Add to cart logic here
-  };
+    console.log(`Added ${quantity} of product ${productId} to cart`)
+  }
 
   const handleQuantityChange = (e) => {
-    const value = parseInt(e.target.value);
-    if (value > 0 && value <= product.quantity) {
-      setQuantity(value);
+    const value = parseInt(e.target.value)
+    if (value > 0 && value <= quantityLimit) {
+      setQuantity(value)
     }
-  };
+  }
+
+  if (loading) {
+    return (
+      <div className='py-12'>
+        <div className='container'>
+          <div className='glass-panel rounded-3xl p-8 text-slate-600'>Loading product...</div>
+        </div>
+      </div>
+    )
+  }
+
+  if (error || !product) {
+    return (
+      <div className='py-12'>
+        <div className='container'>
+          <div className='glass-panel rounded-3xl p-8 text-center'>
+            <p className='text-lg font-semibold text-slate-700'>Product not found</p>
+            <p className='mt-2 text-sm text-slate-500'>{error || 'The requested product could not be loaded.'}</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div>
       <section className='py-8'>
         <div className='container'>
-          <div className='flex gap-8 py-5'>
-            {/* Product Images */}
-            <div className='productImages w-[45%]'>
-              <div className='mb-4'>
+          <div className='mb-6 flex items-center gap-3 rounded-2xl bg-emerald-50/80 px-4 py-3 text-sm text-emerald-800 ring-1 ring-emerald-100'>
+            <span className='font-semibold uppercase tracking-[0.2em] text-emerald-600'>Product details</span>
+            <span>/{product.category}</span>
+            <span>/{product.name}</span>
+          </div>
+
+          <div className='glass-panel rounded-3xl p-6 lg:p-8'>
+            <div className='flex flex-col gap-8 py-5 lg:flex-row'>
+              <div className='productImages lg:w-[45%]'>
+                <div className='mb-4 overflow-hidden rounded-3xl border border-emerald-100 bg-white shadow-sm'>
+                  <Swiper
+                    modules={[Navigation, Pagination, Thumbs]}
+                    thumbs={{ swiper: thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null }}
+                    navigation
+                    pagination={{ clickable: true }}
+                    className='rounded-3xl'
+                  >
+                    {images.map((image, index) => (
+                      <SwiperSlide key={index}>
+                        <img
+                          src={image}
+                          alt={`Product image ${index + 1}`}
+                          className='h-105 w-full object-cover'
+                        />
+                      </SwiperSlide>
+                    ))}
+                  </Swiper>
+                </div>
+
                 <Swiper
-                  modules={[Navigation, Pagination, Thumbs]}
-                  thumbs={{ swiper: thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null }}
-                  navigation
-                  pagination={{ clickable: true }}
-                  className='rounded-lg overflow-hidden bg-gray-50'
-                  onSwiper={setMainSwiper}
+                  modules={[Thumbs]}
+                  onSwiper={setThumbsSwiper}
+                  slidesPerView={4}
+                  spaceBetween={10}
+                  className='thumbs-swiper'
                 >
-                  {product.images.map((image, index) => (
+                  {images.map((image, index) => (
                     <SwiperSlide key={index}>
-                      <img 
-                        src={image} 
-                        alt={`Product image ${index + 1}`} 
-                        className='w-full h-96 object-cover'
+                      <img
+                        src={image}
+                        alt={`Thumbnail ${index + 1}`}
+                        className='h-20 w-full cursor-pointer rounded-2xl border-2 border-transparent object-cover hover:border-emerald-500'
                       />
                     </SwiperSlide>
                   ))}
                 </Swiper>
               </div>
 
-              {/* Thumbnail Images */}
-              <Swiper
-                modules={[Thumbs]}
-                onSwiper={setThumbsSwiper}
-                slidesPerView={4}
-                spaceBetween={10}
-                className='thumbs-swiper'
-              >
-                {product.images.map((image, index) => (
-                  <SwiperSlide key={index}>
-                    <img 
-                      src={image} 
-                      alt={`Thumbnail ${index + 1}`} 
-                      className='w-full h-20 object-cover rounded cursor-pointer border-2 border-transparent hover:border-cyan-500'
-                    />
-                  </SwiperSlide>
-                ))}
-              </Swiper>
-            </div>
-
-            {/* Product Details */}
-            <div className='productDetails w-[55%]'>
-              <div className='mb-4'>
-                <span className='inline-block bg-red-100 text-red-600 px-3 py-1 rounded-full text-xs font-[600] mb-3'>
-                  {product.category}
-                </span>
-                <h1 className='text-3xl font-[700] text-gray-800 mb-3'>
-                  {product.name}
-                </h1>
-              </div>
-
-              {/* Rating */}
-              <div className='flex items-center gap-3 mb-4'>
-                <div className='flex items-center gap-1'>
-                  <Rating name="read-only" value={product.rating} readOnly size='medium' />
-                </div>
-                <span className='text-gray-600 text-sm'>({product.reviews} reviews)</span>
-              </div>
-
-              {/* Price */}
-              <div className='flex items-center gap-4 mb-6'>
-                <span className='text-4xl font-[700] text-red-600'>
-                  ${product.price.toFixed(2)}
-                </span>
-                <span className='text-2xl text-gray-400 line-through font-[500]'>
-                  ${product.originalPrice.toFixed(2)}
-                </span>
-                <span className='inline-block bg-green-100 text-green-600 px-3 py-1 rounded font-[600]'>
-                  Save {Math.round((1 - product.price / product.originalPrice) * 100)}%
-                </span>
-              </div>
-
-              {/* Stock Status */}
-              <div className='mb-6'>
-                {product.inStock ? (
-                  <div className='flex items-center gap-2'>
-                    <div className='w-3 h-3 bg-green-500 rounded-full'></div>
-                    <span className='text-green-600 font-[600]'>In Stock ({product.quantity} available)</span>
-                  </div>
-                ) : (
-                  <div className='flex items-center gap-2'>
-                    <div className='w-3 h-3 bg-red-500 rounded-full'></div>
-                    <span className='text-red-600 font-[600]'>Out of Stock</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Description */}
-              <p className='text-gray-600 text-base leading-relaxed mb-6'>
-                {product.description}
-              </p>
-
-              {/* Quantity and Add to Cart */}
-              <div className='flex gap-4 mb-8'>
-                <div className='flex items-center border-2 border-gray-300 rounded-lg'>
-                  <button 
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className='px-4 py-2 text-gray-600 hover:bg-gray-100'
-                  >
-                    −
-                  </button>
-                  <input 
-                    type='number' 
-                    value={quantity}
-                    onChange={handleQuantityChange}
-                    className='w-16 text-center border-0 outline-none font-[600]'
-                    min='1'
-                    max={product.quantity}
-                  />
-                  <button 
-                    onClick={() => setQuantity(Math.min(product.quantity, quantity + 1))}
-                    className='px-4 py-2 text-gray-600 hover:bg-gray-100'
-                  >
-                    +
-                  </button>
+              <div className='productDetails lg:w-[55%]'>
+                <div className='mb-4'>
+                  <span className='mb-3 inline-block rounded-full bg-yellow-100 px-3 py-1 text-xs font-semibold text-amber-700'>
+                    {product.category}
+                  </span>
+                  <h1 className='mb-3 text-3xl font-bold text-slate-900 lg:text-4xl'>{product.name}</h1>
                 </div>
 
-                <Button 
-                  onClick={handleAddToCart}
-                  disabled={!product.inStock}
-                  className='flex-1 bg-cyan-500 text-white hover:bg-cyan-600'
-                  style={{
-                    textTransform: 'uppercase',
-                    fontSize: '14px',
-                    fontWeight: '600',
-                    padding: '12px 20px'
-                  }}
-                >
-                  Add to Cart
-                </Button>
-              </div>
+                <div className='mb-4 flex items-center gap-3'>
+                  <Rating name='read-only' value={rating} readOnly size='medium' />
+                  <span className='text-sm text-slate-600'>({Number(product.sales || 0)} sales)</span>
+                </div>
 
-              {/* Additional Details */}
-              <div className='border-t pt-6'>
-                <h3 className='text-lg font-[600] text-gray-800 mb-4'>Product Details</h3>
-                <div className='space-y-3'>
-                  {Object.entries(product.details).map(([key, value]) => (
-                    <div key={key} className='flex justify-between text-sm'>
-                      <span className='text-gray-600 capitalize font-[500]'>
-                        {key.replace(/([A-Z])/g, ' $1').trim()}:
-                      </span>
-                      <span className='text-gray-800 font-[600]'>{value}</span>
+                <div className='mb-6 flex flex-wrap items-center gap-4'>
+                  <span className='text-4xl font-bold text-emerald-700'>${price.toFixed(2)}</span>
+                  {originalPrice > price && (
+                    <span className='text-2xl font-medium text-slate-400 line-through'>${originalPrice.toFixed(2)}</span>
+                  )}
+                  {discount > 0 && (
+                    <span className='rounded-full bg-emerald-100 px-3 py-1 font-semibold text-emerald-700'>
+                      Save {discount}%
+                    </span>
+                  )}
+                </div>
+
+                <div className='mb-6'>
+                  {inStock ? (
+                    <div className='flex items-center gap-2'>
+                      <div className='h-3 w-3 rounded-full bg-emerald-500' />
+                      <span className='font-semibold text-emerald-600'>In Stock ({quantityLimit} available)</span>
                     </div>
-                  ))}
+                  ) : (
+                    <div className='flex items-center gap-2'>
+                      <div className='h-3 w-3 rounded-full bg-red-500' />
+                      <span className='font-semibold text-red-600'>Out of Stock</span>
+                    </div>
+                  )}
                 </div>
-              </div>
 
-              {/* Share and Wishlist */}
-              <div className='flex gap-4 mt-6 pt-6 border-t'>
-                <Button 
-                  className='border-2 border-gray-300 text-gray-700 hover:bg-gray-100'
-                  style={{
-                    textTransform: 'capitalize',
-                    fontSize: '14px',
-                    fontWeight: '600'
-                  }}
-                >
-                  💙 Add to Wishlist
-                </Button>
-                <Button 
-                  className='border-2 border-gray-300 text-gray-700 hover:bg-gray-100'
-                  style={{
-                    textTransform: 'capitalize',
-                    fontSize: '14px',
-                    fontWeight: '600'
-                  }}
-                >
-                  📤 Share
-                </Button>
+                <p className='mb-6 text-base leading-relaxed text-slate-600'>
+                  {product.description || 'Fresh product details will appear here once you add a description to this item.'}
+                </p>
+
+                <div className='mb-8 flex flex-col gap-4 sm:flex-row'>
+                  <div className='flex items-center rounded-2xl border-2 border-emerald-200 bg-white shadow-sm'>
+                    <button
+                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                      className='px-4 py-3 text-slate-600 hover:bg-emerald-50'
+                    >
+                      −
+                    </button>
+                    <input
+                      type='number'
+                      value={quantity}
+                      onChange={handleQuantityChange}
+                      className='w-16 border-0 text-center font-semibold outline-none'
+                      min='1'
+                      max={quantityLimit}
+                    />
+                    <button
+                      onClick={() => setQuantity(Math.min(quantityLimit, quantity + 1))}
+                      className='px-4 py-3 text-slate-600 hover:bg-emerald-50'
+                    >
+                      +
+                    </button>
+                  </div>
+
+                  <Button
+                    onClick={handleAddToCart}
+                    disabled={!inStock}
+                    className='flex-1 bg-emerald-600 text-white hover:bg-emerald-700'
+                    style={{
+                      textTransform: 'uppercase',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                      padding: '12px 20px'
+                    }}
+                  >
+                    Add to Cart
+                  </Button>
+                </div>
+
+                <div className='border-t border-emerald-100 pt-6'>
+                  <h3 className='mb-4 text-lg font-semibold text-slate-900'>Product Details</h3>
+                  <div className='space-y-3'>
+                    {[
+                      ['Category', product.category],
+                      ['Section', product.section],
+                      ['Sales', product.sales],
+                      ['Stock', product.stock],
+                      ['Image', product.image ? 'Available' : 'Not available'],
+                    ].map(([key, value]) => (
+                      <div key={key} className='flex justify-between text-sm'>
+                        <span className='font-medium capitalize text-slate-500'>{key}:</span>
+                        <span className='font-semibold text-slate-800'>{String(value ?? '-')}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className='mt-6 flex gap-4 border-t border-emerald-100 pt-6'>
+                  <Button
+                    className='border-2 border-emerald-200 text-emerald-700 hover:bg-emerald-50'
+                    style={{
+                      textTransform: 'capitalize',
+                      fontSize: '14px',
+                      fontWeight: '600'
+                    }}
+                  >
+                    💙 Add to Wishlist
+                  </Button>
+                  <Button
+                    className='border-2 border-yellow-200 text-amber-700 hover:bg-yellow-50'
+                    style={{
+                      textTransform: 'capitalize',
+                      fontSize: '14px',
+                      fontWeight: '600'
+                    }}
+                  >
+                    📤 Share
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
         </div>
-        <Productrow />
+        <Productrow title={product.section || 'Latest Products'} />
       </section>
     </div>
   )
