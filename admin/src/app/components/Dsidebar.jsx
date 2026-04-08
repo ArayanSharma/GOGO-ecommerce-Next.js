@@ -26,9 +26,8 @@ const Dsidebar = () => {
     { id: 'slider', label: 'Slider', icon: Sliders, color: 'bg-amber-500', href: '/slider' },
     { id: 'products', label: 'Products', icon: Package, color: 'bg-teal-500', href: '/products' },
     { id: 'addproduct', label: 'Add Product', icon: Plus, color: 'bg-yellow-500', href: '/addproduct' },
-    
-    { id: 'orders', label: 'Orders', icon: ShoppingCart, color: 'from-orange-500 to-orange-600', href: '/orders' },
-    { id: 'logout', label: 'Logout', icon: LogOut, color: 'from-red-500 to-red-600', href: '/logout' }
+    { id: 'orders', label: 'Orders', icon: ShoppingCart, color: 'bg-linear-to-r from-orange-500 to-orange-600', href: '/orders' },
+    { id: 'logout', label: 'Logout', icon: LogOut, color: 'bg-linear-to-r from-red-500 to-red-600', href: '/logout' }
   ]
 
   useEffect(() => {

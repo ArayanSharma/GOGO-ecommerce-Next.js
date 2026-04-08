@@ -144,7 +144,17 @@ const page = () => {
     [products]
   );
 
-  const formatPrice = (price) => `$${Number(price || 0).toFixed(2)}`;
+  const inrFormatter = useMemo(
+    () =>
+      new Intl.NumberFormat('en-IN', {
+        style: 'currency',
+        currency: 'INR',
+        maximumFractionDigits: 2,
+      }),
+    []
+  );
+
+  const formatPrice = (price) => inrFormatter.format(Number(price || 0));
 
   const getStockState = (stock) => {
     const numericStock = Number(stock || 0);

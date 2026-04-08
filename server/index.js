@@ -12,6 +12,8 @@ import connectDb from './config/connectDb.js';
 import userRouter from './routes/user.route.js';
 import homeSliderRouter from './routes/homeSlider.route.js';
 import productRouter from './routes/product.route.js';
+import orderRouter from './routes/order.route.js';
+import adminRouter from './routes/admin.route.js';
 
 const app = express();
 
@@ -66,6 +68,8 @@ app.get('/', (req, res) => {
 app.use('/api/users', userRouter);
 app.use('/api/sliders', homeSliderRouter);
 app.use('/api/products', productRouter);
+app.use('/api/orders', orderRouter);
+app.use('/api/admin', adminRouter);
 
 connectDb().then(() => {
     app.listen(process.env.PORT, () => {

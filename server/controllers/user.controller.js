@@ -255,7 +255,17 @@ export const loginUserController = async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        const user = await UserModel.findOne({ email });
+        if (typeof email !== "string" || typeof password !== "string") {
+            return res.status(400).json({
+                message: "Invalid login payload",
+                error: true,
+                success: false,
+            });
+        }
+
+        const normalizedEmail = email.trim().toLowerCase();
+
+        const user = await UserModel.findOne({ email: normalizedEmail });
 
         if (!user) {
             return res.status(400).json({ 
@@ -281,7 +291,29 @@ export const loginUserController = async (req, res) => {
             });
         }
 
-        const checkPassword = await bcrypt.compare(password, user.password);
+        if (typeof user.password !== "string" || user.password.length === 0) {
+            const isGoogleOnly = Boolean(user.signUpWithGoogle || user.singUPwithGoogle);
+
+            return res.status(400).json({
+                message: isGoogleOnly
+                    ? "This account was created with Google. Please continue with Google login."
+                    : "Password is not configured for this account",
+                error: true,
+                success: false,
+            });
+        }
+
+        let checkPassword = false;
+        try {
+            checkPassword = await bcrypt.compare(password, user.password);
+        } catch (compareError) {
+            return res.status(400).json({
+                message: "Invalid password format for this account",
+                error: true,
+                success: false,
+            });
+        }
+
         if (!checkPassword) {
             return res.status(400).json({
                 message: "Invalid password",

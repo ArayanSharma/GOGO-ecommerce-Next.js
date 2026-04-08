@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import Link from 'next/link'
 import gsap from 'gsap'
 import {
   Bell,
@@ -168,9 +169,11 @@ const Dheader = () => {
             </div>
 
             {/* Settings */}
-            <button className="header-item p-2.5 rounded-lg hover:bg-emerald-100 transition-all duration-300 group">
-              <Settings size={20} className="text-slate-600 group-hover:text-emerald-600 group-hover:rotate-90 transition-all duration-500" />
-            </button>
+            <Link href="/setting">
+              <button className="header-item p-2.5 rounded-lg hover:bg-emerald-100 transition-all duration-300 group " >
+                <Settings size={20} className="text-slate-600 group-hover:text-emerald-600 group-hover:rotate-90 transition-all duration-500" />
+              </button>
+            </Link>
 
             {/* Divider */}
             <div className="w-px h-7 bg-linear-to-b from-emerald-300 via-emerald-200 to-yellow-200" />
@@ -222,10 +225,12 @@ const Dheader = () => {
                         <User size={16} className="text-emerald-600 group-hover:scale-110 transition-transform" />
                         <span>My Profile</span>
                       </button>
-                      <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-emerald-50 transition-all text-slate-700 text-sm font-medium group">
-                        <Settings size={16} className="text-emerald-600 group-hover:scale-110 transition-transform" />
-                        <span>Settings</span>
-                      </button>
+                      <Link href="/setting">
+                        <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-emerald-50 transition-all text-slate-700 text-sm font-medium group">
+                          <Settings size={16} className="text-emerald-600 group-hover:scale-110 transition-transform" />
+                          <span>Settings</span>
+                        </button>
+                      </Link>
                       <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-yellow-50 transition-all text-slate-700 text-sm font-medium group">
                         <MessageSquare size={16} className="text-amber-500 group-hover:scale-110 transition-transform" />
                         <span>Help & Support</span>

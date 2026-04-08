@@ -8,18 +8,31 @@ import 'swiper/css/navigation'
 import 'swiper/css/pagination'
 import Button from '@mui/material/Button'
 import Rating from '@mui/material/Rating'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import Productrow from '@/app/components/Productrow'
 import { fetchProductById } from '@/app/utils/api'
+import { useWishlist } from '@/context/WishlistContext'
+import { useCart } from '@/context/CartContext'
+
+const inrFormatter = new Intl.NumberFormat('en-IN', {
+  style: 'currency',
+  currency: 'INR',
+  maximumFractionDigits: 2,
+})
+
+const formatINR = (value) => inrFormatter.format(Number(value || 0))
 
 const ProductDetail = () => {
   const params = useParams()
+  const router = useRouter()
   const productId = params.productdetId
   const [quantity, setQuantity] = useState(1)
   const [thumbsSwiper, setThumbsSwiper] = useState(null)
   const [product, setProduct] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const { isInWishlist, toggleWishlist } = useWishlist()
+  const { addToCart } = useCart()
 
   useEffect(() => {
     const loadProduct = async () => {
@@ -55,9 +68,31 @@ const ProductDetail = () => {
   const discount = originalPrice > 0 ? Math.max(0, Math.round((1 - price / originalPrice) * 100)) : 0
   const rating = Number(product?.rating || 4)
   const quantityLimit = Math.max(1, Number(product?.stock || 1))
+  const inWishlist = product ? isInWishlist(product.id) : false
 
   const handleAddToCart = () => {
-    console.log(`Added ${quantity} of product ${productId} to cart`)
+    if (!product) return
+
+    addToCart(
+      {
+        id: product.id,
+        name: product.name,
+        category: product.category,
+        image: product.image,
+        rating,
+        stock: product.stock,
+        price,
+        originalPrice,
+      },
+      quantity
+    )
+  }
+
+  const handleBuyNow = () => {
+    if (!product || !inStock) return
+
+    handleAddToCart()
+    router.push('/checkout')
   }
 
   const handleQuantityChange = (e) => {
@@ -156,9 +191,9 @@ const ProductDetail = () => {
                 </div>
 
                 <div className='mb-6 flex flex-wrap items-center gap-4'>
-                  <span className='text-4xl font-bold text-emerald-700'>${price.toFixed(2)}</span>
+                  <span className='text-4xl font-bold text-emerald-700'>{formatINR(price)}</span>
                   {originalPrice > price && (
-                    <span className='text-2xl font-medium text-slate-400 line-through'>${originalPrice.toFixed(2)}</span>
+                    <span className='text-2xl font-medium text-slate-400 line-through'>{formatINR(originalPrice)}</span>
                   )}
                   {discount > 0 && (
                     <span className='rounded-full bg-emerald-100 px-3 py-1 font-semibold text-emerald-700'>
@@ -209,19 +244,21 @@ const ProductDetail = () => {
                     </button>
                   </div>
 
-                  <Button
-                    onClick={handleAddToCart}
-                    disabled={!inStock}
-                    className='flex-1 bg-emerald-600 text-white hover:bg-emerald-700'
-                    style={{
-                      textTransform: 'uppercase',
-                      fontSize: '14px',
-                      fontWeight: '600',
-                      padding: '12px 20px'
-                    }}
-                  >
-                    Add to Cart
-                  </Button>
+                    
+
+                    <Button
+                      onClick={handleBuyNow}
+                      disabled={!inStock}
+                      className='flex-1 rounded-2xl border-2 border-cyan-200 bg-linear-to-r from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-100 hover:from-cyan-600 hover:to-blue-700'
+                      style={{
+                        textTransform: 'uppercase',
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        padding: '12px 20px'
+                      }}
+                    >
+                      Buy Now
+                    </Button>
                 </div>
 
                 <div className='border-t border-emerald-100 pt-6'>
@@ -244,14 +281,15 @@ const ProductDetail = () => {
 
                 <div className='mt-6 flex gap-4 border-t border-emerald-100 pt-6'>
                   <Button
-                    className='border-2 border-emerald-200 text-emerald-700 hover:bg-emerald-50'
+                    onClick={() => toggleWishlist(product)}
+                    className={inWishlist ? 'border-2 border-red-200 text-red-700 hover:bg-red-50' : 'border-2 border-emerald-200 text-emerald-700 hover:bg-emerald-50'}
                     style={{
                       textTransform: 'capitalize',
                       fontSize: '14px',
                       fontWeight: '600'
                     }}
                   >
-                    💙 Add to Wishlist
+                    {inWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'}
                   </Button>
                   <Button
                     className='border-2 border-yellow-200 text-amber-700 hover:bg-yellow-50'

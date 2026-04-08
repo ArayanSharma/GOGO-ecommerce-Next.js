@@ -8,9 +8,13 @@ import { FaRegHeart  } from "react-icons/fa";
 import { IoCartOutline } from "react-icons/io5";
 import Nav from './Nav';
 import { useAuth } from '@/context/AuthContext';
+import { useWishlist } from '@/context/WishlistContext';
+import { useCart } from '@/context/CartContext';
 
 const Header = () => {
   const { isAuthenticated, userName, userEmail, logout } = useAuth();
+  const { wishlistCount } = useWishlist();
+  const { cartCount } = useCart();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const displayName = userName || (userEmail ? userEmail.split('@')[0] : 'My Account');
 
@@ -64,12 +68,16 @@ const Header = () => {
             <div className='flex items-center gap-4'>
                 <Link href="/wishlist" className='relative flex items-center text-gray-700 hover:text-red-500 transition-colors'>
                     <FaRegHeart size={24} />
-                    <span className='absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center'>3</span>
+                    <span className='absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center'>
+                      {wishlistCount}
+                    </span>
                 </Link>
                 
                 <Link href="/cart" className='relative flex items-center text-gray-700 hover:text-blue-600 transition-colors'>
                     <IoCartOutline size={24} />
-                    <span className='absolute -top-2 -right-2 bg-blue-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center'>3</span>
+                    <span className='absolute -top-2 -right-2 bg-blue-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center'>
+                      {cartCount}
+                    </span>
                 </Link>
             </div>
         </div>
