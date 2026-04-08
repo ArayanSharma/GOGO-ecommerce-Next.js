@@ -6,6 +6,14 @@ import React, { useState } from 'react'
 import { IoChevronUp, IoChevronDown } from 'react-icons/io5'
 import { GiCarrot, GiMeat, GiBreadSlice, GiCoffeeCup, GiIceCreamCone, GiCookie, } from 'react-icons/gi'
 
+const inrFormatter = new Intl.NumberFormat('en-IN', {
+  style: 'currency',
+  currency: 'INR',
+  maximumFractionDigits: 0,
+})
+
+const formatINR = (value) => inrFormatter.format(Number(value || 0))
+
 const Sidebar = () => {
   const [categoryOpen, setCategoryOpen] = useState(true)
   const [ratingOpen, setRatingOpen] = useState(true)
@@ -102,8 +110,8 @@ const Sidebar = () => {
               }}
             />
             <div className='flex justify-between mt-2 text-xs text-gray-600'>
-              <span>${priceRange[0]}</span>
-              <span>${priceRange[1]}</span>
+              <span>{formatINR(priceRange[0])}</span>
+              <span>{formatINR(priceRange[1])}</span>
             </div>
           </div>
 

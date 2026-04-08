@@ -1,20 +1,55 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import Sidebar from '../components/Sidebar'
 import { IoChevronDown } from 'react-icons/io5'
 import Productitem from '../components/Productitem'
 import Pagination from '@mui/material/Pagination';
 import Stack from '@mui/material/Stack';
+import { fetchProducts } from '../utils/api'
 
 
 const page = () => {
   const [sortOpen, setSortOpen] = useState(false)
   const [sortOption, setSortOption] = useState('Name, A to Z')
+    const [products, setProducts] = useState([])
+    const [loading, setLoading] = useState(true)
+
+    useEffect(() => {
+        const loadProducts = async () => {
+            try {
+                setLoading(true)
+                const data = await fetchProducts()
+                setProducts(data)
+            } catch (error) {
+                console.error('Failed to load storefront products:', error)
+            } finally {
+                setLoading(false)
+            }
+        }
+
+        loadProducts()
+    }, [])
 
   const handleSort = (option) => {
     setSortOption(option)
     setSortOpen(false)
   }
+
+    const sortedProducts = useMemo(() => {
+        const items = [...products]
+
+        switch (sortOption) {
+            case 'Name, Z to A':
+                return items.sort((a, b) => String(b.name || b.product || '').localeCompare(String(a.name || a.product || '')))
+            case 'Price, Low to High':
+                return items.sort((a, b) => Number(a.price || 0) - Number(b.price || 0))
+            case 'Price, High to Low':
+                return items.sort((a, b) => Number(b.price || 0) - Number(a.price || 0))
+            case 'Name, A to Z':
+            default:
+                return items.sort((a, b) => String(a.name || a.product || '').localeCompare(String(b.name || b.product || '')))
+        }
+    }, [products, sortOption])
 
   return (
     <div>
@@ -71,18 +106,16 @@ const page = () => {
                     </div>
 
                     {/* Right Content */}
-                    <div className='rightcontent w-82% pl-5'> 
-                        <div className='grid grid-cols-4 gap-5'>
-                            {/* Product Card */}
-                            <Productitem />
-                            <Productitem />
-                            <Productitem />
-                            <Productitem />
-                            <Productitem />
-                            <Productitem />
-                            <Productitem />
-                            <Productitem />
-                        </div>  
+                                        <div className='rightcontent w-82% pl-5'> 
+                                                {loading ? (
+                                                    <div className='glass-panel rounded-2xl p-6 text-slate-600'>Loading products...</div>
+                                                ) : (
+                                                    <div className='grid grid-cols-2 gap-5 xl:grid-cols-4'>
+                                                        {sortedProducts.map((product) => (
+                                                            <Productitem key={product.id} {...product} />
+                                                        ))}
+                                                    </div>
+                                                )}
                     </div>
                 </div>
 
