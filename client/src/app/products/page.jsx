@@ -4,15 +4,26 @@ import Sidebar from '../components/Sidebar'
 import { IoChevronDown } from 'react-icons/io5'
 import Productitem from '../components/Productitem'
 import Pagination from '@mui/material/Pagination';
-import Stack from '@mui/material/Stack';
 import { fetchProducts } from '../utils/api'
+import { usePathname } from 'next/navigation'
+import Link from 'next/link'
 
 
 const page = () => {
+    const pathname = usePathname()
   const [sortOpen, setSortOpen] = useState(false)
   const [sortOption, setSortOption] = useState('Name, A to Z')
     const [products, setProducts] = useState([])
     const [loading, setLoading] = useState(true)
+    const [searchText, setSearchText] = useState('')
+    const searchQuery = searchText.trim().toLowerCase()
+
+    useEffect(() => {
+        if (typeof window === 'undefined') return
+        const params = new URLSearchParams(window.location.search)
+        const q = params.get('search') || ''
+        setSearchText(q)
+    }, [pathname])
 
     useEffect(() => {
         const loadProducts = async () => {
@@ -35,8 +46,21 @@ const page = () => {
     setSortOpen(false)
   }
 
+    const filteredProducts = useMemo(() => {
+        if (!searchQuery) {
+            return products
+        }
+
+        return products.filter((item) => {
+            const name = String(item.name || item.product || '').toLowerCase()
+            const category = String(item.category || '').toLowerCase()
+            const section = String(item.section || '').toLowerCase()
+            return name.includes(searchQuery) || category.includes(searchQuery) || section.includes(searchQuery)
+        })
+    }, [products, searchQuery])
+
     const sortedProducts = useMemo(() => {
-        const items = [...products]
+        const items = [...filteredProducts]
 
         switch (sortOption) {
             case 'Name, Z to A':
@@ -49,7 +73,7 @@ const page = () => {
             default:
                 return items.sort((a, b) => String(a.name || a.product || '').localeCompare(String(b.name || b.product || '')))
         }
-    }, [products, sortOption])
+    }, [filteredProducts, sortOption])
 
   return (
     <div>
@@ -107,8 +131,23 @@ const page = () => {
 
                     {/* Right Content */}
                                         <div className='rightcontent w-82% pl-5'> 
+                                                {searchQuery && (
+                                                    <div className='mb-4 flex flex-wrap items-center gap-3 rounded-xl border border-cyan-100 bg-cyan-50/70 px-4 py-3 text-sm'>
+                                                        <p className='text-slate-700'>
+                                                            Search results for: <span className='font-semibold text-slate-900'>"{searchText}"</span>
+                                                        </p>
+                                                        <span className='rounded-full bg-white px-3 py-1 text-xs font-semibold text-cyan-700 ring-1 ring-cyan-200'>
+                                                            {sortedProducts.length} items
+                                                        </span>
+                                                        <Link href='/products' className='ml-auto rounded-lg bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50'>
+                                                            Clear Search
+                                                        </Link>
+                                                    </div>
+                                                )}
                                                 {loading ? (
                                                     <div className='glass-panel rounded-2xl p-6 text-slate-600'>Loading products...</div>
+                                                ) : sortedProducts.length === 0 ? (
+                                                    <div className='glass-panel rounded-2xl p-6 text-slate-600'>No products found for this search.</div>
                                                 ) : (
                                                     <div className='grid grid-cols-2 gap-5 xl:grid-cols-4'>
                                                         {sortedProducts.map((product) => (
