@@ -4,8 +4,9 @@ import React, { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import Search from './Search'
-import { FaRegHeart  } from "react-icons/fa";
+import { FaRegHeart, FaSignOutAlt } from "react-icons/fa";
 import { IoCartOutline } from "react-icons/io5";
+import { FaCircleUser } from "react-icons/fa6";
 import Nav from './Nav';
 import { useAuth } from '@/context/AuthContext';
 import { useWishlist } from '@/context/WishlistContext';
@@ -38,20 +39,25 @@ const Header = () => {
               <div className='relative'>
                 <button 
                   onClick={() => setShowUserMenu(!showUserMenu)}
-                  className='text-right text-gray-700 hover:text-blue-600 transition-colors'
+                  className='flex items-center gap-2 text-gray-700 hover:text-blue-600 transition-colors'
+                  title={displayName}
                 >
-                  <p className='text-sm font-semibold leading-tight'>{displayName}</p>
-                  {userEmail && <p className='text-xs text-gray-500 leading-tight'>{userEmail}</p>}
+                  <FaCircleUser size={28} />
                 </button>
                 {showUserMenu && (
-                  <div className='absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10'>
+                  <div className='absolute right-0 mt-3 w-64 bg-white border border-gray-200 rounded-lg shadow-xl z-10 overflow-hidden'>
+                    <div className='px-4 py-3 border-b border-gray-100 bg-linear-to-r from-blue-50 to-cyan-50'>
+                      <p className='text-sm font-bold text-gray-800'>{displayName}</p>
+                      {userEmail && <p className='text-xs text-gray-600 mt-1 break-all'>{userEmail}</p>}
+                    </div>
                     <button 
                       onClick={() => {
                         logout();
                         setShowUserMenu(false);
                       }}
-                      className='w-full text-left px-4 py-2 hover:bg-gray-100 text-red-600 font-semibold rounded-lg'
+                      className='w-full text-left px-4 py-3 hover:bg-red-50 text-red-600 font-semibold flex items-center gap-2 transition-colors'
                     >
+                      <FaSignOutAlt size={16} />
                       Logout
                     </button>
                   </div>

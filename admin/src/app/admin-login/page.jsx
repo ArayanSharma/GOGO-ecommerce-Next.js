@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { ShieldCheck, Lock, Mail, ArrowRight } from 'lucide-react'
-import { adminPostData } from '@/utils/api'
+import { adminPostData, setAdminToken, getAdminToken } from '@/utils/api'
 
 const LoginPage = () => {
   const router = useRouter()
@@ -12,11 +12,19 @@ const LoginPage = () => {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [checkingAuth, setCheckingAuth] = useState(true)
   const redirectPath = searchParams.get('redirect') || '/'
 
+  // Check if already logged in
   useEffect(() => {
+    const token = getAdminToken();
+    if (token) {
+      router.replace('/');
+    } else {
+      setCheckingAuth(false);
+    }
     document.title = 'Admin Login | GOGO'
-  }, [])
+  }, [router])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -28,16 +36,36 @@ const LoginPage = () => {
 
       if (response?.error || response?.success === false) {
         setError(response?.message || 'Login failed')
+        setLoading(false)
         return
+      }
+
+      // Store the JWT token
+      if (response?.data?.token || response?.token) {
+        const token = response.data.token || response.token;
+        setAdminToken(token);
       }
 
       router.replace(redirectPath)
       router.refresh()
     } catch (loginError) {
-      setError(loginError.message || 'Login failed')
-    } finally {
+      console.error('Login error:', loginError);
+      setError(loginError?.message || 'Login failed. Please try again.')
       setLoading(false)
     }
+  }
+
+  if (checkingAuth) {
+    return (
+      <div className='flex min-h-screen items-center justify-center bg-gradient-to-br from-emerald-50 to-amber-50'>
+        <div className='text-center'>
+          <div className='inline-flex items-center gap-2 rounded-full bg-emerald-100 px-4 py-2 text-emerald-700 mb-4'>
+            <div className='h-2 w-2 rounded-full bg-emerald-600 animate-pulse'></div>
+            Loading...
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (

@@ -20,6 +20,7 @@ const page = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [deletingId, setDeletingId] = useState('');
+  const [failedImages, setFailedImages] = useState(new Set());
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -142,11 +143,14 @@ const page = () => {
                 <tr key={user._id || user.id || index} className='border-b border-emerald-50 hover:bg-emerald-50/35 transition-colors'>
                   <td className='px-4 py-3 text-sm text-slate-700'>{index + 1}</td>
                   <td className='px-4 py-3'>
-                    {avatarUrl ? (
+                    {avatarUrl && !failedImages.has(user._id || user.id) ? (
                       <img
                         src={avatarUrl}
                         alt={user.name || 'User avatar'}
                         className='h-11 w-11 rounded-full border-2 border-emerald-200 object-cover shadow-sm'
+                        onError={() => {
+                          setFailedImages(prev => new Set(prev).add(user._id || user.id));
+                        }}
                       />
                     ) : (
                       <div className='h-11 w-11 rounded-full bg-yellow-200 text-amber-800 border-2 border-yellow-300 flex items-center justify-center text-sm font-bold shadow-sm'>
