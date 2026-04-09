@@ -46,7 +46,7 @@ const Header = () => {
                 </button>
                 {showUserMenu && (
                   <div className='absolute right-0 mt-3 w-64 bg-white border border-gray-200 rounded-lg shadow-xl z-10 overflow-hidden'>
-                    <div className='px-4 py-3 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-cyan-50'>
+                    <div className='px-4 py-3 border-b border-gray-100 bg-linear-to-r from-blue-50 to-cyan-50'>
                       <p className='text-sm font-bold text-gray-800'>{displayName}</p>
                       {userEmail && <p className='text-xs text-gray-600 mt-1 break-all'>{userEmail}</p>}
                     </div>

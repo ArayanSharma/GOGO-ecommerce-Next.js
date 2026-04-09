@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { LogOut, Heart, Sparkles, CheckCircle2 } from 'lucide-react'
+import { clearAdminToken, adminGetData } from '@/utils/api'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
@@ -25,12 +26,22 @@ export default function LogoutPage() {
           })
         }, 200)
 
-        // Clear localStorage
+        // Call logout API endpoint to revoke token on server
+        try {
+          await adminGetData('/api/admin/logout')
+        } catch (err) {
+          // API might not have logout endpoint, continue with client-side logout
+          console.log('API logout not available, clearing client data')
+        }
+
+        // Clear JWT token from cookies
+        clearAdminToken();
+
+        // Clear all localStorage
         if (typeof window !== 'undefined') {
           localStorage.removeItem('adminToken')
           localStorage.removeItem('adminUser')
           localStorage.removeItem('adminEmail')
-          document.cookie = 'adminToken=; path=/; max-age=0; samesite=lax'
           // Clear all admin-related items
           Object.keys(localStorage).forEach((key) => {
             if (key.includes('admin') || key.includes('gogo')) {
@@ -39,29 +50,19 @@ export default function LogoutPage() {
           })
         }
 
-        // Call logout API endpoint (if exists)
-        try {
-          await fetch(`${API_BASE_URL}/api/admin/logout`, {
-            method: 'GET',
-            credentials: 'include',
-          })
-        } catch (err) {
-          // API might not exist, continue with client-side logout
-          console.log('API logout not available, clearing client data')
-        }
-
         clearInterval(progressInterval)
         setProgress(100)
         setIsComplete(true)
 
         // Redirect to login after short delay
         setTimeout(() => {
-          router.push('/login')
+          router.push('/admin-login')
         }, 1500)
       } catch (error) {
         console.error('Logout error:', error)
-        // Force redirect even if error occurs
-        router.push('/login')
+        // Clear token and force redirect even if error occurs
+        clearAdminToken();
+        router.push('/admin-login')
       }
     }
 

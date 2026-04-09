@@ -16,6 +16,11 @@ const page = () => {
     const [products, setProducts] = useState([])
     const [loading, setLoading] = useState(true)
     const [searchText, setSearchText] = useState('')
+    const [filters, setFilters] = useState({
+      categories: [],
+      priceRange: [0, 10000],
+      ratings: [],
+    })
     const searchQuery = searchText.trim().toLowerCase()
 
     useEffect(() => {
@@ -46,18 +51,47 @@ const page = () => {
     setSortOpen(false)
   }
 
+  const handleFiltersChange = (newFilters) => {
+    setFilters(newFilters)
+  }
+
     const filteredProducts = useMemo(() => {
-        if (!searchQuery) {
-            return products
+        let result = products
+
+        // Filter by search query
+        if (searchQuery) {
+            result = result.filter((item) => {
+                const name = String(item.name || item.product || '').toLowerCase()
+                const category = String(item.category || '').toLowerCase()
+                const section = String(item.section || '').toLowerCase()
+                return name.includes(searchQuery) || category.includes(searchQuery) || section.includes(searchQuery)
+            })
         }
 
-        return products.filter((item) => {
-            const name = String(item.name || item.product || '').toLowerCase()
-            const category = String(item.category || '').toLowerCase()
-            const section = String(item.section || '').toLowerCase()
-            return name.includes(searchQuery) || category.includes(searchQuery) || section.includes(searchQuery)
+        // Filter by selected categories
+        if (filters.categories.length > 0) {
+            result = result.filter((item) => {
+                const itemCategory = String(item.category || '')
+                return filters.categories.some(cat => itemCategory.includes(cat) || cat.includes(itemCategory))
+            })
+        }
+
+        // Filter by price range
+        result = result.filter((item) => {
+            const price = Number(item.price || 0)
+            return price >= filters.priceRange[0] && price <= filters.priceRange[1]
         })
-    }, [products, searchQuery])
+
+        // Filter by rating (if ratings are selected)
+        if (filters.ratings.length > 0) {
+            result = result.filter((item) => {
+                const itemRating = Math.ceil(Number(item.rating || 0))
+                return filters.ratings.some(rating => itemRating >= rating)
+            })
+        }
+
+        return result
+    }, [products, searchQuery, filters])
 
     const sortedProducts = useMemo(() => {
         const items = [...filteredProducts]
@@ -126,7 +160,7 @@ const page = () => {
                 <div className='flex gap-5'>
                     {/* Sidebar */}
                     <div className='sidebarWrapper w-25%'>
-                        <Sidebar />
+                        <Sidebar onFiltersChange={handleFiltersChange} />
                     </div>
 
                     {/* Right Content */}

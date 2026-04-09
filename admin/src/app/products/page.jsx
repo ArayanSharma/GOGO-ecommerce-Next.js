@@ -382,10 +382,10 @@ const page = () => {
                       </div>
 
                       <div className='flex items-center justify-between gap-3'>
-                        <button type='button' className='inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-white px-4 py-2 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-50 hover:border-emerald-300'>
+                        <Link href={`/editproduct/${productId}`} className='inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-white px-4 py-2 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-50 hover:border-emerald-300'>
                           <Edit size={16} />
                           Edit
-                        </button>
+                        </Link>
                         <button
                           type='button'
                           onClick={() => handleDeleteProduct(productId)}
