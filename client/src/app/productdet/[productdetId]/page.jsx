@@ -13,6 +13,7 @@ import Productrow from '@/app/components/Productrow'
 import { fetchProductById } from '@/app/utils/api'
 import { useWishlist } from '@/context/WishlistContext'
 import { useCart } from '@/context/CartContext'
+import { generateProductStructuredData } from '@/utils/seoUtils'
 
 const inrFormatter = new Intl.NumberFormat('en-IN', {
   style: 'currency',
@@ -53,6 +54,20 @@ const ProductDetail = () => {
       loadProduct()
     }
   }, [productId])
+
+  // Inject JSON-LD structured data after component mounts
+  useEffect(() => {
+    if (product) {
+      const script = document.createElement('script')
+      script.type = 'application/ld+json'
+      script.textContent = JSON.stringify(generateProductStructuredData(product))
+      document.head.appendChild(script)
+
+      return () => {
+        document.head.removeChild(script)
+      }
+    }
+  }, [product])
 
   const images = useMemo(() => {
     if (!product?.image) {

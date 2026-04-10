@@ -10,7 +10,7 @@ export default function HomePage() {
   return (
     <>
       <div className='sliderWrapper bg-gray-50 py-6'>
-        {/* Main content sections with semantic HTML */}
+        {/* Main content sections */}
         <section aria-label="Hero slider and featured products">
           <Homeslider />
         </section>

@@ -1,0 +1,39 @@
+# robots.txt for GOGO E-commerce
+
+# Allow all robots
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /private/
+Disallow: /*.json$
+Disallow: /checkout/
+Disallow: /cart
+Disallow: /admin-login
+Disallow: /login
+Disallow: /register
+Disallow: /verify
+Disallow: /reset-password
+Disallow: /forgot-password
+Disallow: /_next/
+Allow: /_next/static/
+Allow: /_next/image/
+
+# Crawl delay (optional)
+Crawl-delay: 0
+
+# Request rate (optional)
+Request-rate: 1/1s
+
+# Sitemap
+Sitemap: https://gogo-ecommerce.vercel.app/sitemap.xml
+
+# Google specific
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+# Bing specific
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
