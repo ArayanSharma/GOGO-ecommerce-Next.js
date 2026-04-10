@@ -1,0 +1,10 @@
+{
+  "buildCommand": "cd client && npm run build",
+  "outputDirectory": "client/.next",
+  "devCommand": "cd client && npm run dev",
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "env": {
+    "NEXT_PUBLIC_API_URL": "@next_public_api_url"
+  }
+}
