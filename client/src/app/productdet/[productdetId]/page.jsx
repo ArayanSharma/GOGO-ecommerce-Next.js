@@ -310,6 +310,7 @@ const ProductDetail = () => {
         <Productrow title={product.section || 'Latest Products'} />
       </section>
     </div>
+    </ProtectedRoute>
   )
 }
 
