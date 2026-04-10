@@ -11,6 +11,10 @@ const nextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'gogo-api-oqeg.onrender.com',
+      },
+      {
+        protocol: 'https',
         hostname: '**.cloudinary.com',
       },
       {

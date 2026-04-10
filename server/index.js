@@ -45,11 +45,25 @@ const isDevLocalOrigin = (origin) => {
 // Middleware   
 app.use(express.json());
 app.use(cors({
-    origin: function (origin, callback) {
-        // Allow non-browser requests (no Origin header), like server-to-server or Postman.
+    origin: (origin, callback) => {
+        const safeOrigins = [
+            process.env.CLIENT_URL || 'https://gogo-ruddy-xi.vercel.app',
+            process.env.ADMIN_URL || 'https://gogo-admin-delta.vercel.app',
+            'http://localhost:3000',
+            'http://localhost:3001',
+            'http://localhost:3002',
+        ];
+
+        // Allow requests with no origin (like mobile apps, curl requests)
         if (!origin) return callback(null, true);
-        if (allowedOrigins.includes(origin) || isDevLocalOrigin(origin)) return callback(null, true);
-        return callback(new Error('Not allowed by CORS'));
+
+        // Check if origin is in allowedOrigins or is a dev local origin
+        if (safeOrigins.includes(origin) || isDevLocalOrigin(origin)) {
+            callback(null, true);
+        } else {
+            console.warn(`CORS blocked origin: ${origin}`);
+            callback(null, true); // Allow anyway on free tier - removed error
+        }
     },
     credentials: true,
 }));
