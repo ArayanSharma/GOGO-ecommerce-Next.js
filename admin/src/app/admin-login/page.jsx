@@ -1,11 +1,11 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { ShieldCheck, Lock, Mail, ArrowRight } from 'lucide-react'
 import { adminPostData, setAdminToken, getAdminToken } from '@/utils/api'
 
-const LoginPage = () => {
+const LoginFormContent = () => {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [email, setEmail] = useState('')
@@ -57,17 +57,78 @@ const LoginPage = () => {
 
   if (checkingAuth) {
     return (
-      <div className='flex min-h-screen items-center justify-center bg-gradient-to-br from-emerald-50 to-amber-50'>
-        <div className='text-center'>
-          <div className='inline-flex items-center gap-2 rounded-full bg-emerald-100 px-4 py-2 text-emerald-700 mb-4'>
-            <div className='h-2 w-2 rounded-full bg-emerald-600 animate-pulse'></div>
-            Loading...
-          </div>
+      <div className='text-center'>
+        <div className='inline-flex items-center gap-2 rounded-full bg-emerald-100 px-4 py-2 text-emerald-700 mb-4'>
+          <div className='h-2 w-2 rounded-full bg-emerald-600 animate-pulse'></div>
+          Loading...
         </div>
       </div>
     )
   }
 
+  return (
+    <>
+      <div className='mb-8'>
+        <div className='mb-4 inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold uppercase tracking-[0.22em] text-emerald-700 ring-1 ring-emerald-100'>
+          <Lock size={14} /> Admin Login
+        </div>
+        <h2 className='text-3xl font-bold text-slate-900'>Welcome back</h2>
+        <p className='mt-2 text-sm text-slate-500'>Enter your admin email and password to continue.</p>
+      </div>
+
+      {error && (
+        <div className='mb-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700'>
+          {error}
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className='space-y-4'>
+        <div className='space-y-2'>
+          <label className='text-sm font-semibold text-slate-700'>Email</label>
+          <div className='flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 focus-within:border-emerald-400 focus-within:ring-4 focus-within:ring-emerald-100'>
+            <Mail size={18} className='text-slate-400' />
+            <input
+              type='email'
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className='w-full bg-transparent text-slate-900 outline-none placeholder:text-slate-400'
+              placeholder='admin@example.com'
+              required
+            />
+          </div>
+        </div>
+
+        <div className='space-y-2'>
+          <label className='text-sm font-semibold text-slate-700'>Password</label>
+          <div className='flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 focus-within:border-emerald-400 focus-within:ring-4 focus-within:ring-emerald-100'>
+            <Lock size={18} className='text-slate-400' />
+            <input
+              type='password'
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className='w-full bg-transparent text-slate-900 outline-none placeholder:text-slate-400'
+              placeholder='Enter password'
+              required
+            />
+          </div>
+        </div>
+
+        <button
+          type='submit'
+          disabled={loading}
+          className='group mt-2 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-linear-to-r from-emerald-600 to-amber-500 px-5 py-3.5 font-semibold text-white shadow-lg shadow-emerald-200 transition hover:from-emerald-700 hover:to-amber-600 disabled:cursor-not-allowed disabled:opacity-60'
+        >
+          {loading ? 'Signing In...' : 'Login to Dashboard'}
+          {!loading && <ArrowRight size={18} className='transition-transform group-hover:translate-x-1' />}
+        </button>
+      </form>
+
+      <p className='mt-6 text-center text-xs text-slate-500'>This page is protected. Only admins stored in the database can sign in.</p>
+    </>
+  )
+}
+
+const LoginPageContent = () => {
   return (
     <div className='relative flex min-h-screen items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_0%_0%,#ecfccb,transparent_35%),radial-gradient(circle_at_100%_0%,#dbeafe,transparent_30%),linear-gradient(160deg,#0f172a_0%,#0f766e_45%,#f59e0b_100%)] px-4 py-10'>
       <div className='pointer-events-none absolute -left-20 top-16 h-72 w-72 rounded-full bg-emerald-300/20 blur-3xl' />
@@ -98,66 +159,30 @@ const LoginPage = () => {
           </div>
 
           <div className='bg-white/95 p-8 sm:p-10'>
-            <div className='mb-8'>
-              <div className='mb-4 inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold uppercase tracking-[0.22em] text-emerald-700 ring-1 ring-emerald-100'>
-                <Lock size={14} /> Admin Login
-              </div>
-              <h2 className='text-3xl font-bold text-slate-900'>Welcome back</h2>
-              <p className='mt-2 text-sm text-slate-500'>Enter your admin email and password to continue.</p>
-            </div>
-
-            {error && (
-              <div className='mb-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700'>
-                {error}
-              </div>
-            )}
-
-            <form onSubmit={handleSubmit} className='space-y-4'>
-              <div className='space-y-2'>
-                <label className='text-sm font-semibold text-slate-700'>Email</label>
-                <div className='flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 focus-within:border-emerald-400 focus-within:ring-4 focus-within:ring-emerald-100'>
-                  <Mail size={18} className='text-slate-400' />
-                  <input
-                    type='email'
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className='w-full bg-transparent text-slate-900 outline-none placeholder:text-slate-400'
-                    placeholder='admin@example.com'
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className='space-y-2'>
-                <label className='text-sm font-semibold text-slate-700'>Password</label>
-                <div className='flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 focus-within:border-emerald-400 focus-within:ring-4 focus-within:ring-emerald-100'>
-                  <Lock size={18} className='text-slate-400' />
-                  <input
-                    type='password'
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className='w-full bg-transparent text-slate-900 outline-none placeholder:text-slate-400'
-                    placeholder='Enter password'
-                    required
-                  />
-                </div>
-              </div>
-
-              <button
-                type='submit'
-                disabled={loading}
-                className='group mt-2 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-linear-to-r from-emerald-600 to-amber-500 px-5 py-3.5 font-semibold text-white shadow-lg shadow-emerald-200 transition hover:from-emerald-700 hover:to-amber-600 disabled:cursor-not-allowed disabled:opacity-60'
-              >
-                {loading ? 'Signing In...' : 'Login to Dashboard'}
-                {!loading && <ArrowRight size={18} className='transition-transform group-hover:translate-x-1' />}
-              </button>
-            </form>
-
-            <p className='mt-6 text-center text-xs text-slate-500'>This page is protected. Only admins stored in the database can sign in.</p>
+            <LoginFormContent />
           </div>
         </div>
       </div>
     </div>
+  )
+}
+
+const LoginPage = () => {
+  return (
+    <Suspense
+      fallback={
+        <div className='flex min-h-screen items-center justify-center bg-gradient-to-br from-emerald-50 to-amber-50'>
+          <div className='text-center'>
+            <div className='inline-flex items-center gap-2 rounded-full bg-emerald-100 px-4 py-2 text-emerald-700 mb-4'>
+              <div className='h-2 w-2 rounded-full bg-emerald-600 animate-pulse'></div>
+              Loading...
+            </div>
+          </div>
+        </div>
+      }
+    >
+      <LoginPageContent />
+    </Suspense>
   )
 }
 
