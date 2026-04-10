@@ -73,7 +73,8 @@ export const registerUserController = async (req, res) => {
         let user;
 
         const { name, email, password } = req.body;
-        console.log(name, email, password);
+        const normalizedEmail = email.trim().toLowerCase();
+        console.log(name, normalizedEmail, password);
 
         if(!name || !email || !password) {
             return res.status(400).json({ 
@@ -85,7 +86,7 @@ export const registerUserController = async (req, res) => {
         }
 
         // Check if user already exists
-        user = await UserModel.findOne({ email });
+        user = await UserModel.findOne({ email: normalizedEmail });
         if (user) {
             return res.status(400).json({ message: "User already exists" });
         }
@@ -98,7 +99,7 @@ export const registerUserController = async (req, res) => {
 
         user = new UserModel({
             name,
-            email,
+            email: normalizedEmail,
             password: hashedPassword,
             otp: verifyEmail,
            
@@ -107,7 +108,7 @@ export const registerUserController = async (req, res) => {
         await user.save();
 
         await sendEmailFun(
-            email,
+            normalizedEmail,
             "Email Verification - GOGO",
             verificationEmail(name, verifyEmail)
         );
@@ -139,10 +140,11 @@ export const verifyEmailController = async (req, res) => {
 
     try {
         const { email, otp } = req.body;
+        const normalizedEmail = email.trim().toLowerCase();
         
-        console.log(email, otp);
+        console.log(normalizedEmail, otp);
         
-        const user = await UserModel.findOne({ email });
+        const user = await UserModel.findOne({ email: normalizedEmail });
 
         if (!user) {
             return res.status(400).json({ 
@@ -194,6 +196,7 @@ export const verifyEmailController = async (req, res) => {
 export const resendOtpController = async (req, res) => {
     try {
         const { email } = req.body;
+        const normalizedEmail = email.trim().toLowerCase();
 
         if (!email) {
             return res.status(400).json({
@@ -203,7 +206,7 @@ export const resendOtpController = async (req, res) => {
             });
         }
 
-        const user = await UserModel.findOne({ email });
+        const user = await UserModel.findOne({ email: normalizedEmail });
 
         if (!user) {
             return res.status(400).json({
@@ -231,7 +234,7 @@ export const resendOtpController = async (req, res) => {
 
         // Send email
         await sendEmailFun(
-            email,
+            normalizedEmail,
             "Email Verification - GOGO (Resend)",
             verificationEmail(user.name, newOtp)
         );
@@ -385,7 +388,8 @@ export const forgotPasswordController = async (req, res) => {
     try{
 
         const {email} = req.body;
-        const user = await UserModel.findOne({email});
+        const normalizedEmail = email.trim().toLowerCase();
+        const user = await UserModel.findOne({email: normalizedEmail});
 
         if(!user){
             return res.status(400).json({
@@ -398,12 +402,12 @@ export const forgotPasswordController = async (req, res) => {
             const verifyEmail = Math.floor(100000 + Math.random() * 900000).toString();
 
             user.otp = verifyEmail;
-            user.otpExpires= Date.now() + 10 * 60 * 1000;
+            user.otp_expiry = Date.now() + 10 * 60 * 1000;
 
                 await user.save();
 
                 await sendEmailFun(
-                    email,
+                    normalizedEmail,
                     "Password Reset - GOGO",
                     verificationEmail(user.name, verifyEmail)
                 );
@@ -429,60 +433,62 @@ export const forgotPasswordController = async (req, res) => {
 export const verifyForgetPassword = async (req, res) => {
     try {
         const { email, otp } = req.body;
-        const user = await UserModel.findOne({ email });
+
+        // Validate input
+        if (!email || !otp) {
+            return res.status(400).json({
+                success: false,
+                error: true,
+                message: "Please provide email and OTP"
+            });
+        }
+
+        const normalizedEmail = email.trim().toLowerCase();
+        const user = await UserModel.findOne({ email: normalizedEmail });
 
         if (!user) {
             return res.status(400).json({
-                message: "User not found",
+                success: false,
                 error: true,
-                success: false
+                message: "User not found"
             });
         }
 
-        if(!email || !otp){
+        // Check OTP match
+        if (user.otp !== otp) {
             return res.status(400).json({
-                message: "Please provide email and OTP",
+                success: false,
                 error: true,
-                success: false
+                message: "Invalid OTP"
             });
         }
 
-        if(user.otp !== otp || user.otpExpires < Date.now()){
+        // Check OTP expiry
+        if (user.otp_expiry < Date.now()) {
             return res.status(400).json({
-                message: "Invalid or expired OTP",
+                success: false,
                 error: true,
-                success: false
+                message: "OTP has expired"
             });
-
-            const currentTime = Date.now();
-            if (user.otpExpires < currentTime) {
-
-                return res.status(400).json({
-                    message: "OTP has expired",
-                    error: true,
-                    success: false
-                });
-            }
-            user.otp = "";
-            user.otpExpires = "";
-            await user.save();
-
-            return res.status(200).json({
-                message: "OTP verified successfully",
-                success: true,
-                error: false
-            });
-
         }
 
+        // OTP is valid, clear it and return success
+        user.otp = "";
+        user.otp_expiry = null;
+        await user.save();
 
-
+        return res.status(200).json({
+            success: true,
+            error: false,
+            message: "OTP verified successfully"
+        });
 
     } catch (error) {
+        console.error('OTP verification error:', error);
         return res.status(500).json({
             success: false,
             error: true,
-            message: error.message || Error,
+            message: error.message || 'Server error during OTP verification'
         });
     }
 };
@@ -492,6 +498,7 @@ export const verifyForgetPassword = async (req, res) => {
  export const changePasswordController = async (req, res) => {
     try {
         const { email, newPassword, confirmPassword } = req.body;
+        const normalizedEmail = email.trim().toLowerCase();
 
         if(!email || !newPassword || !confirmPassword){
             return res.status(400).json({
@@ -507,14 +514,37 @@ export const verifyForgetPassword = async (req, res) => {
                 success: false
             });
         }
+
+        if(newPassword.length < 8) {
+            return res.status(400).json({
+                message: "Password must be at least 8 characters long",
+                error: true,
+                success: false
+            });
+        }
+
+        const user = await UserModel.findOne({ email: normalizedEmail });
+
+        if (!user) {
+            return res.status(400).json({
+                message: "User not found",
+                error: true,
+                success: false
+            });
+        }
+
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(newPassword, salt);
 
         user.password = hashedPassword;
         user.signUpWithGoogle = false;
+        // Clear OTP and OTP expiry after successful password change
+        user.otp = null;
+        user.otp_expiry = null;
         await user.save();
+        
         return res.status(200).json({
-            message: "Password changed successfully",
+            message: "Password changed successfully. Please login with your new password.",
             success: true,
             error: false
         });
@@ -523,16 +553,70 @@ export const verifyForgetPassword = async (req, res) => {
         return res.status(500).json({
             success: false,
             error: true,
-            message: error.message || Error,
+            message: error.message || "Failed to change password",
+        });
+    }
+};
+
+export const resendForgotPasswordOtpController = async (req, res) => {
+    try {
+        const { email } = req.body;
+        const normalizedEmail = email.trim().toLowerCase();
+
+        if (!email) {
+            return res.status(400).json({
+                message: "Email is required",
+                error: true,
+                success: false
+            });
+        }
+
+        const user = await UserModel.findOne({ email: normalizedEmail });
+
+        if (!user) {
+            return res.status(400).json({
+                message: "User not found",
+                error: true,
+                success: false
+            });
+        }
+
+        // Generate new OTP
+        const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
+
+        // Update user with new OTP and expiry
+        user.otp = newOtp;
+        user.otp_expiry = Date.now() + 10 * 60 * 1000; // OTP valid for 10 minutes
+        await user.save();
+
+        // Send email
+        await sendEmailFun(
+            normalizedEmail,
+            "Password Reset OTP - GOGO (Resend)",
+            verificationEmail(user.name, newOtp)
+        );
+
+        return res.status(200).json({
+            message: "OTP resent successfully",
+            success: true,
+            error: false
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            error: true,
+            message: error.message || "Failed to resend OTP"
         });
     }
 };
 
 export async function authWithGoogle(req, res) {
     const { name, email, password, avatar, mobile, role } = req.body;
+    const normalizedEmail = email.trim().toLowerCase();
 
     try {
-        const existingUser = await UserModel.findOne({ email });
+        const existingUser = await UserModel.findOne({ email: normalizedEmail });
 
         const cookieOptions = {
             httpOnly: true,
@@ -543,7 +627,7 @@ export async function authWithGoogle(req, res) {
         if (!existingUser) {
             const user = new UserModel({
                 name,
-                email,
+                email: normalizedEmail,
                 password,
                 avatar,
                 mobile,           // ✅ was: moblie

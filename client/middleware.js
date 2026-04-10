@@ -4,10 +4,10 @@ export function middleware(request) {
   const { pathname } = request.nextUrl;
 
   // Public routes that don't require authentication
-  const publicRoutes = ['/login', '/register', '/forgot-password', '/verify', '/checkout'];
+  const publicRoutes = ['/', '/login', '/register', '/forgot-password', '/verify', '/reset-password', '/checkout'];
   
   // Routes that require authentication
-  const protectedRoutes = ['/', '/cart', '/wishlist', '/products', '/productdet'];
+  const protectedRoutes = ['/cart', '/wishlist', '/products', '/productdet'];
 
   // Get token from cookie
   const token = request.cookies.get('accessToken')?.value;

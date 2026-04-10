@@ -126,8 +126,9 @@ const ProductDetail = () => {
   }
 
   return (
-    <div>
-      <section className='py-8'>
+    <ProtectedRoute>
+      <div>
+        <section className='py-8'>
         <div className='container'>
           <div className='mb-6 flex items-center gap-3 rounded-2xl bg-emerald-50/80 px-4 py-3 text-sm text-emerald-800 ring-1 ring-emerald-100'>
             <span className='font-semibold uppercase tracking-[0.2em] text-emerald-600'>Product details</span>

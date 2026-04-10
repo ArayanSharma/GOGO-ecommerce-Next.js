@@ -36,15 +36,31 @@ export default function ForgotPasswordPage() {
         return;
       }
 
-      // Add your forgot password logic here
-      console.log('Password reset requested for:', email);
+      // Send forgot password request to backend
+      const normalizedEmail = email.trim().toLowerCase();
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/users/forgot-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ email: normalizedEmail }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        setError(data.message || 'Failed to send OTP');
+        setLoading(false);
+        return;
+      }
+
       setSuccess('An OTP has been sent to your email address');
       setEmail('');
-      // Navigate to verify page after 1 second
+      // Navigate to verify page after 2 seconds
       setTimeout(() => {
-        router.push('/verify');
-      }, 1000);
-      // TODO: Connect to backend API
+        router.push(`/verify?email=${encodeURIComponent(normalizedEmail)}&type=forgot-password`);
+      }, 2000);
     } catch (err) {
       setError(err.message || 'Failed to send reset email');
     } finally {
