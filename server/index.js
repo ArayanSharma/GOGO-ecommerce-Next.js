@@ -47,8 +47,8 @@ app.use(express.json());
 app.use(cors({
     origin: (origin, callback) => {
         const safeOrigins = [
-            process.env.CLIENT_URL || 'https://gogo-ruddy-xi.vercel.app',
-            process.env.ADMIN_URL || 'https://gogo-admin-delta.vercel.app',
+            process.env.CLIENT_URL || 'https://gogo-client.onrender.com',
+            process.env.ADMIN_URL || 'https://gogo-admin.onrender.com',
             'http://localhost:3000',
             'http://localhost:3001',
             'http://localhost:3002',
