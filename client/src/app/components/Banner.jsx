@@ -14,7 +14,7 @@ const Banner = () => {
               <span className='text-orange-500 text-sm font-[600] uppercase'>Only This Week</span>
               <h2 className='text-3xl font-[700] text-gray-800 mt-3 mb-2'>We provide you the best quality products</h2>
               <p className='text-gray-600 text-sm mb-6'>A family place for grocery</p>
-              <Link href='/shop' className='text-cyan-500 font-[600] flex items-center gap-2 hover:gap-4 transition-all'>
+              <Link href='/products' className='text-cyan-500 font-[600] flex items-center gap-2 hover:gap-4 transition-all'>
                 Shop Now <span>→</span>
               </Link>
             </div>
@@ -29,7 +29,7 @@ const Banner = () => {
               <span className='text-orange-500 text-sm font-[600] uppercase'>Only This Week</span>
               <h2 className='text-3xl font-[700] text-gray-800 mt-3 mb-2'>We make your grocery shopping more exciting</h2>
               <p className='text-gray-600 text-sm mb-6'>Shine the morning...</p>
-              <Link href='/shop' className='text-cyan-500 font-[600] flex items-center gap-2 hover:gap-4 transition-all'>
+              <Link href='/products' className='text-cyan-500 font-[600] flex items-center gap-2 hover:gap-4 transition-all'>
                 Shop Now <span>→</span>
               </Link>
             </div>
@@ -44,7 +44,7 @@ const Banner = () => {
               <span className='text-orange-500 text-sm font-[600] uppercase'>Special Offer</span>
               <h2 className='text-3xl font-[700] text-gray-800 mt-3 mb-2'>Fresh & Organic Products</h2>
               <p className='text-gray-600 text-sm mb-6'>Get the best deals</p>
-              <Link href='/shop' className='text-cyan-500 font-[600] flex items-center gap-2 hover:gap-4 transition-all'>
+              <Link href='/products' className='text-cyan-500 font-[600] flex items-center gap-2 hover:gap-4 transition-all'>
                 Shop Now <span>→</span>
               </Link>
             </div>
