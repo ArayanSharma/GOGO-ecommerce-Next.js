@@ -4,32 +4,28 @@ import { RiArrowDropDownLine } from "react-icons/ri";
 
 const Nav = () => {
   return (
-    <nav className='py-4 bg-linear-to-r from-gray-50 to-blue-50 border-b border-gray-200 shadow-sm'>
-
+    <nav className='hidden md:block py-2 md:py-3 bg-linear-to-r from-gray-50 to-blue-50 border-b border-gray-200 shadow-sm'>
       <div className='container flex items-center justify-center gap-1 flex-wrap'>
-        <Link href='/' className='text-[15px] text-gray-800 font-semibold hover:text-blue-600 hover:bg-blue-50 flex py-2 px-3 whitespace-nowrap rounded-lg transition-all duration-200'>Home</Link>
-        <Link href='/products' className='text-[15px] text-gray-800 font-semibold hover:text-blue-600 hover:bg-blue-50 flex py-2 px-3 whitespace-nowrap rounded-lg transition-all duration-200'>Fruits & Vegetables</Link>
-        <Link href='/products' className='text-[15px] text-gray-800 font-semibold hover:text-blue-600 hover:bg-blue-50 flex py-2 px-3 whitespace-nowrap rounded-lg transition-all duration-200'>Meat & Seafood</Link>      
-        <Link href='/products' className='text-[15px] text-gray-800 font-semibold hover:text-blue-600 hover:bg-blue-50 flex py-2 px-3 whitespace-nowrap rounded-lg transition-all duration-200'>Breakfast & Bakery</Link>
-        <Link href='/products' className='text-[15px] text-gray-800 font-semibold hover:text-blue-600 hover:bg-blue-50 flex py-2 px-3 whitespace-nowrap rounded-lg transition-all duration-200'>Beverages</Link>
-        <Link href='/products' className='text-[15px] text-gray-800 font-semibold hover:text-blue-600 hover:bg-blue-50 flex py-2 px-3 whitespace-nowrap rounded-lg transition-all duration-200'>Frozen Food</Link>
-        <Link href='/products' className='text-[15px] text-gray-800 font-semibold hover:text-blue-600 hover:bg-blue-50 flex py-2 px-3 whitespace-nowrap rounded-lg transition-all duration-200'>Biscuits & Snacks</Link>
-        <Link href='/products' className='text-[15px] text-gray-800 font-semibold hover:text-blue-600 hover:bg-blue-50 flex py-2 px-3 whitespace-nowrap rounded-lg transition-all duration-200'>Grocery & Staples</Link>
-      <div className='relative group'>
-        <span className='text-[15px] text-gray-800 font-semibold hover:text-blue-600 hover:bg-blue-50 flex items-center gap-1 cursor-pointer py-2 px-3 whitespace-nowrap rounded-lg transition-all duration-200'>
-          More 
-          <RiArrowDropDownLine size={24}/>
-        </span> 
-        
-        <div className="hidden group-hover:flex flex-col absolute top-full right-0 bg-white shadow-lg rounded-lg overflow-hidden transition-all duration-300 z-50 min-w-max border border-gray-200">
-          <Link href='/products' className='text-[15px] text-gray-800 font-semibold hover:bg-blue-50 hover:text-blue-600 py-2 px-4 whitespace-nowrap transition-all duration-200'>Beverages</Link>
-          <Link href='/products' className='text-[15px] text-gray-800 font-semibold hover:bg-blue-50 hover:text-blue-600 py-2 px-4 whitespace-nowrap transition-all duration-200'>Breakfast & Bakery</Link>
+        <Link href='/' className='text-xs sm:text-sm md:text-[15px] text-gray-800 font-semibold hover:text-blue-600 hover:bg-blue-50 py-2 px-2 md:px-3 rounded-lg transition whitespace-nowrap'>Home</Link>
+        <Link href='/products' className='text-xs sm:text-sm md:text-[15px] text-gray-800 font-semibold hover:text-blue-600 hover:bg-blue-50 py-2 px-2 md:px-3 rounded-lg transition whitespace-nowrap'>Fruits & Vegetables</Link>
+        <Link href='/products' className='text-xs sm:text-sm md:text-[15px] text-gray-800 font-semibold hover:text-blue-600 hover:bg-blue-50 py-2 px-2 md:px-3 rounded-lg transition whitespace-nowrap'>Meat & Seafood</Link>      
+        <Link href='/products' className='text-xs sm:text-sm md:text-[15px] text-gray-800 font-semibold hover:text-blue-600 hover:bg-blue-50 py-2 px-2 md:px-3 rounded-lg transition whitespace-nowrap'>Breakfast & Bakery</Link>
+        <Link href='/products' className='text-xs sm:text-sm md:text-[15px] text-gray-800 font-semibold hover:text-blue-600 hover:bg-blue-50 py-2 px-2 md:px-3 rounded-lg transition whitespace-nowrap'>Beverages</Link>
+        <Link href='/products' className='text-xs sm:text-sm md:text-[15px] text-gray-800 font-semibold hover:text-blue-600 hover:bg-blue-50 py-2 px-2 md:px-3 rounded-lg transition whitespace-nowrap'>Frozen Food</Link>
+        <Link href='/products' className='text-xs sm:text-sm md:text-[15px] text-gray-800 font-semibold hover:text-blue-600 hover:bg-blue-50 py-2 px-2 md:px-3 rounded-lg transition whitespace-nowrap'>Biscuits & Snacks</Link>
+        <Link href='/products' className='text-xs sm:text-sm md:text-[15px] text-gray-800 font-semibold hover:text-blue-600 hover:bg-blue-50 py-2 px-2 md:px-3 rounded-lg transition whitespace-nowrap'>Grocery & Staples</Link>
+        <div className='relative group'>
+          <span className='text-xs sm:text-sm md:text-[15px] text-gray-800 font-semibold hover:text-blue-600 hover:bg-blue-50 flex items-center gap-1 cursor-pointer py-2 px-2 md:px-3 rounded-lg transition whitespace-nowrap'>
+            More 
+            <RiArrowDropDownLine size={20}/>
+          </span> 
+          <div className="hidden group-hover:flex flex-col absolute top-full right-0 bg-white shadow-lg rounded-lg overflow-hidden transition z-50 min-w-max border border-gray-200">
+            <Link href='/products' className='text-xs sm:text-sm md:text-[15px] text-gray-800 font-semibold hover:bg-blue-50 hover:text-blue-600 py-2 px-4 whitespace-nowrap transition'>Beverages</Link>
+            <Link href='/products' className='text-xs sm:text-sm md:text-[15px] text-gray-800 font-semibold hover:bg-blue-50 hover:text-blue-600 py-2 px-4 whitespace-nowrap transition'>Breakfast & Bakery</Link>
+          </div>
         </div>
       </div>
-
-    </div>
     </nav>
-
   )
 }
 

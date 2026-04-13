@@ -9,137 +9,50 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 
 const Catslider = () => {
+  const categories = [
+    { name: 'Fruits & Vegetables', image: '/c1.avif' },
+    { name: 'Meat & Seafood', image: '/c2.avif' },
+    { name: 'Breakfast & Bakery', image: '/c3.webp' },
+    { name: 'Beverages', image: '/c5.jpg' },
+    { name: 'Bread & Bakery', image: '/c4.jpg' },
+    { name: 'Frozen Food', image: '/c6.png' },
+    { name: 'Biscuits & Snacks', image: '/c7.jpg' },
+    { name: 'Baby & Pregnancy', image: '/c11.png' },
+    { name: 'Healthcare', image: '/c9.png' },
+    { name: 'Grocery & Staples', image: '/c10.png' },
+  ];
+
   return (
-    <div className='py-5'>
-        <div className='container flex items-center justify-between gap-5'>
-
-             <Swiper
-        slidesPerView={'10'}
-        spaceBetween={20}
-        navigation={false}
-        pagination={{
-          clickable: true,
-        }}
-        modules={[Navigation]}
-        className="mySwiper"
-      >
-        <SwiperSlide>
-            <Link href="/products" className='group'>
-            <div className='bg-white p-3 w-full rounded-md shadow-md flex items-center justify-center group-hover:shadow-lg group-hover:bg-primary/10 transition-all duration-300'>
-                <img src="/c1.avif" alt='cat1' className='w-full h-auto' />
-            </div>
-            <h4 className='text-center text-15px font-semibold mt-3 text-gray-700 group-hover:text-primary transition-colors duration-300'>
-                Fruits & Vegetables
-            </h4>
-            </Link>
+    <div className='py-3 sm:py-4 md:py-5'>
+      <div className='container'>
+        <Swiper
+          slidesPerView={3}
+          spaceBetween={10}
+          breakpoints={{
+            320: { slidesPerView: 2, spaceBetween: 8 },
+            640: { slidesPerView: 3, spaceBetween: 10 },
+            768: { slidesPerView: 4, spaceBetween: 12 },
+            1024: { slidesPerView: 6, spaceBetween: 15 },
+          }}
+          navigation={false}
+          pagination={{ clickable: true }}
+          modules={[Navigation]}
+          className="mySwiper"
+        >
+          {categories.map((category, index) => (
+            <SwiperSlide key={index}>
+              <Link href="/products" className='group block'>
+                <div className='bg-white p-2 sm:p-3 w-full rounded-md shadow-md flex items-center justify-center group-hover:shadow-lg group-hover:bg-primary/10 transition-all duration-300'>
+                  <img src={category.image} alt={category.name} className='w-full h-auto max-h-32 object-contain' />
+                </div>
+                <h4 className='text-center text-xs sm:text-sm md:text-base font-semibold mt-2 sm:mt-3 text-gray-700 group-hover:text-primary transition-colors duration-300 line-clamp-2'>
+                  {category.name}
+                </h4>
+              </Link>
             </SwiperSlide>
-            
-            <SwiperSlide>
-                <Link href="/products" className='group'>
-            <div className='bg-white p-3 w-full rounded-md shadow-md flex items-center justify-center group-hover:shadow-lg group-hover:bg-primary/10 transition-all duration-300'>
-                <img src="/c2.avif" alt='cat1' className='w-full h-auto' />
-            </div>
-            <h4 className='text-center text-15px font-semibold mt-3 text-gray-700 group-hover:text-primary transition-colors duration-300'>
-                Meat & Seafood
-            </h4>
-            </Link>
-            </SwiperSlide>
-            
-            <SwiperSlide>
-                <Link href="/products" className='group'>
-            <div className='bg-white p-3 w-full rounded-md shadow-md flex items-center justify-center group-hover:shadow-lg group-hover:bg-primary/10 transition-all duration-300'>
-                <img src="/c3.webp" alt='cat1' className='w-full h-auto' />
-            </div>
-            <h4 className='text-center text-15px font-semibold mt-3 text-gray-700 group-hover:text-primary transition-colors duration-300'>
-                Breakfast & Bakery
-            </h4>
-            </Link>
-            </SwiperSlide>
-            
-            <SwiperSlide>
-                <Link href="/products" className='group'>
-            <div className='bg-white p-3 w-full rounded-md shadow-md flex items-center justify-center group-hover:shadow-lg group-hover:bg-primary/10 transition-all duration-300'>
-                <img src="/c5.jpg" alt='cat1' className='w-full h-auto' />
-            </div>
-            <h4 className='text-center text-15px font-semibold mt-3 text-gray-700 group-hover:text-primary transition-colors duration-300'>
-                Beverages
-            </h4>
-            </Link>
-            </SwiperSlide>
-
-            <SwiperSlide>
-                <Link href="/products" className='group'>
-            <div className='bg-white p-3 w-full rounded-md shadow-md flex items-center justify-center group-hover:shadow-lg group-hover:bg-primary/10 transition-all duration-300'>
-                <img src="/c4.jpg" alt='cat1' className='w-full h-auto' />
-            </div>
-            <h4 className='text-center text-15px font-semibold mt-3 text-gray-700 group-hover:text-primary transition-colors duration-300'>
-                Bread & Bakery
-            </h4>
-            </Link>
-            </SwiperSlide>
-
-            
-            <SwiperSlide>
-                <Link href="/products" className='group'>
-            <div className='bg-white p-3 w-full rounded-md shadow-md flex items-center justify-center group-hover:shadow-lg group-hover:bg-primary/10 transition-all duration-300'>
-                <img src="/c6.png" alt='cat1' className='w-full h-auto' />
-            </div>
-            <h4 className='text-center text-15px font-semibold mt-3 text-gray-700 group-hover:text-primary transition-colors duration-300'>
-                Frozen Food
-            </h4>
-            </Link>
-
-            </SwiperSlide>
-            
-            <SwiperSlide>
-                <Link href="/products" className='group'>
-            <div className='bg-white p-3 w-full rounded-md shadow-md flex items-center justify-center group-hover:shadow-lg group-hover:bg-primary/10 transition-all duration-300'>
-                <img src="/c7.jpg" alt='cat1' className='w-full h-auto' />
-            </div>
-            <h4 className='text-center text-15px font-semibold mt-3 text-gray-700 group-hover:text-primary transition-colors duration-300'>
-                Biscuits & Snacks
-            </h4>
-            </Link>
-            </SwiperSlide>
-            
-            
-
-            <SwiperSlide>
-                <Link href="/products" className='group'>
-            <div className='bg-white p-3 w-full rounded-md shadow-md flex items-center justify-center group-hover:shadow-lg group-hover:bg-primary/10 transition-all duration-300'>
-                <img src="/c11.png" alt='cat1' className='w-full h-auto' />
-            </div>
-            <h4 className='text-center text-15px font-semibold mt-3 text-gray-700 group-hover:text-primary transition-colors duration-300'>
-                Baby & pregnancy
-            </h4>
-            </Link>
-            </SwiperSlide>
-            
-            <SwiperSlide>
-                <Link href="/products" className='group'>
-            <div className='bg-white p-3 w-full rounded-md shadow-md flex items-center justify-center group-hover:shadow-lg group-hover:bg-primary/10 transition-all duration-300'>
-                <img src="/c9.png" alt='cat1' className='w-full h-auto' />
-            </div>
-            <h4 className='text-center text-15px font-semibold mt-3 text-gray-700 group-hover:text-primary transition-colors duration-300'>
-                Healtcare
-            </h4>
-            </Link>
-            </SwiperSlide>
-            
-            
-            
-            <SwiperSlide>
-                <Link href="/products" className='group'>
-            <div className='bg-white p-3 w-full rounded-md shadow-md flex items-center justify-center group-hover:shadow-lg group-hover:bg-primary/10 transition-all duration-300'>
-                <img src="/c10.png" alt='cat1' className='w-full h-auto' />
-            </div>
-            <h4 className='text-center text-15px font-semibold mt-3 text-gray-700 group-hover:text-primary transition-colors duration-300'>
-                Grocery & Staples
-            </h4>
-            </Link>
-            </SwiperSlide>
-      </Swiper>
-        </div>
+          ))}
+        </Swiper>
+      </div>
     </div>
   )
 }

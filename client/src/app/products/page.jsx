@@ -111,18 +111,19 @@ const page = () => {
 
   return (
     <div>
-        <section className='py-5 bg-white relative'>
+        <section className='py-3 sm:py-4 md:py-5 bg-white relative'>
             <div className='container'>
-                {/* Sort By - Absolute Right Corner */}
-                <div className='absolute top-5 right-5 flex items-center gap-3'>
-                    <span className='text-gray-800 font-600'> Sort By </span>
+                {/* Sort By - Responsive Positioning */}
+                <div className='flex items-center justify-between sm:justify-end gap-2 sm:gap-3 mb-4 sm:mb-0'>
+                    <span className='text-xs sm:text-sm text-gray-800 font-600'> Sort By </span>
 
                     <div className='relative'>
                         <button 
                             onClick={() => setSortOpen(!sortOpen)}
-                            className='flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors'
+                            className='flex items-center gap-2 px-2 sm:px-4 py-1.5 sm:py-2 bg-white border border-gray-300 rounded-lg text-xs sm:text-sm text-gray-700 font-medium hover:bg-gray-50 transition-colors'
                         >
-                            {sortOption}
+                            <span className='hidden sm:inline'>{sortOption}</span>
+                            <span className='sm:hidden'>Sort</span>
                             <IoChevronDown size={16} className={`transition-transform ${sortOpen ? 'rotate-180' : ''}`} />
                         </button>
 
@@ -130,25 +131,25 @@ const page = () => {
                             <div className='absolute top-full right-0 mt-2 w-max bg-white border border-gray-300 rounded-lg shadow-lg z-50'>
                                 <button 
                                     onClick={() => handleSort('Name, A to Z')}
-                                    className='block w-full text-left px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors border-b border-gray-200 last:border-b-0 whitespace-nowrap'
+                                    className='block w-full text-left px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm text-gray-700 hover:bg-gray-100 transition-colors border-b border-gray-200 last:border-b-0 whitespace-nowrap'
                                 >
                                     Name, A to Z
                                 </button>
                                 <button 
                                     onClick={() => handleSort('Name, Z to A')}
-                                    className='block w-full text-left px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors border-b border-gray-200 last:border-b-0 whitespace-nowrap'
+                                    className='block w-full text-left px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm text-gray-700 hover:bg-gray-100 transition-colors border-b border-gray-200 last:border-b-0 whitespace-nowrap'
                                 >
                                     Name, Z to A
                                 </button>
                                 <button 
                                     onClick={() => handleSort('Price, Low to High')}
-                                    className='block w-full text-left px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors border-b border-gray-200 last:border-b-0 whitespace-nowrap'
+                                    className='block w-full text-left px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm text-gray-700 hover:bg-gray-100 transition-colors border-b border-gray-200 last:border-b-0 whitespace-nowrap'
                                 >
                                     Price, Low to High
                                 </button>
                                 <button 
                                     onClick={() => handleSort('Price, High to Low')}
-                                    className='block w-full text-left px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors border-b border-gray-200 last:border-b-0 whitespace-nowrap'
+                                    className='block w-full text-left px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm text-gray-700 hover:bg-gray-100 transition-colors border-b border-gray-200 last:border-b-0 whitespace-nowrap'
                                 >
                                     Price, High to Low
                                 </button>
@@ -157,33 +158,34 @@ const page = () => {
                     </div>
                 </div>
 
-                <div className='flex gap-5'>
-                    {/* Sidebar */}
-                    <div className='sidebarWrapper w-25%'>
+                {/* Main Layout - Responsive Flex */}
+                <div className='flex flex-col lg:flex-row gap-4 md:gap-6 mt-6'>
+                    {/* Sidebar - Hidden on Mobile, Visible on Large Screens */}
+                    <div className='hidden lg:block lg:w-1/4 flex-shrink-0'>
                         <Sidebar onFiltersChange={handleFiltersChange} />
                     </div>
 
-                    {/* Right Content */}
-                                        <div className='rightcontent w-82% pl-5'> 
+                    {/* Right Content - Full Width on Mobile, 3/4 Width on Large Screens */}
+                    <div className='w-full lg:w-3/4'> 
                                                 {searchQuery && (
-                                                    <div className='mb-4 flex flex-wrap items-center gap-3 rounded-xl border border-cyan-100 bg-cyan-50/70 px-4 py-3 text-sm'>
+                                                    <div className='mb-3 sm:mb-4 flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-2 sm:gap-3 rounded-lg sm:rounded-xl border border-cyan-100 bg-cyan-50/70 px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm'>
                                                         <p className='text-slate-700'>
                                                             Search results for: <span className='font-semibold text-slate-900'>"{searchText}"</span>
                                                         </p>
-                                                        <span className='rounded-full bg-white px-3 py-1 text-xs font-semibold text-cyan-700 ring-1 ring-cyan-200'>
+                                                        <span className='rounded-full bg-white px-2 sm:px-3 py-0.5 sm:py-1 text-xs font-semibold text-cyan-700 ring-1 ring-cyan-200'>
                                                             {sortedProducts.length} items
                                                         </span>
-                                                        <Link href='/products' className='ml-auto rounded-lg bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50'>
+                                                        <Link href='/products' className='rounded-lg bg-white px-2 sm:px-3 py-1 sm:py-1.5 text-xs font-semibold text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50 sm:ml-auto'>
                                                             Clear Search
                                                         </Link>
                                                     </div>
                                                 )}
                                                 {loading ? (
-                                                    <div className='glass-panel rounded-2xl p-6 text-slate-600'>Loading products...</div>
+                                                    <div className='rounded-lg sm:rounded-2xl border border-emerald-100 bg-emerald-50/50 p-4 sm:p-6 text-xs sm:text-sm text-slate-600'>Loading products...</div>
                                                 ) : sortedProducts.length === 0 ? (
-                                                    <div className='glass-panel rounded-2xl p-6 text-slate-600'>No products found for this search.</div>
+                                                    <div className='rounded-lg sm:rounded-2xl border border-emerald-100 bg-emerald-50/50 p-4 sm:p-6 text-xs sm:text-sm text-slate-600'>No products found for this search.</div>
                                                 ) : (
-                                                    <div className='grid grid-cols-2 gap-5 xl:grid-cols-4'>
+                                                    <div className='grid gap-3 sm:gap-4 md:gap-5 grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'>
                                                         {sortedProducts.map((product) => (
                                                             <Productitem key={product.id} {...product} />
                                                         ))}
