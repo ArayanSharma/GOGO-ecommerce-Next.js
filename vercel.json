@@ -1,13 +1,6 @@
 {
   "version": 2,
-  "projects": [
-    {
-      "src": "client",
-      "use": "@vercel/next"
-    },
-    {
-      "src": "admin",
-      "use": "@vercel/next"
-    }
-  ]
+  "buildCommand": "npm run build",
+  "outputDirectory": ".next",
+  "framework": "nextjs"
 }
