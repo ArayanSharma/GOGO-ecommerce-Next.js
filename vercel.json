@@ -1,7 +1,13 @@
 {
   "version": 2,
-  "buildCommand": "cd client && npm install && npm run build",
-  "outputDirectory": "client/.next",
-  "installCommand": "npm install",
-  "framework": "nextjs"
+  "projects": [
+    {
+      "src": "client",
+      "use": "@vercel/next"
+    },
+    {
+      "src": "admin",
+      "use": "@vercel/next"
+    }
+  ]
 }
