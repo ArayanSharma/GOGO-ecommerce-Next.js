@@ -11,7 +11,7 @@ export const metadata = {
   title: "GOGO - Fresh Groceries & Organic Products Online",
   description: "Shop fresh groceries, organic products, and daily essentials at GOGO. Fast delivery, best prices, and premium quality products. Order now!",
   keywords: "online grocery, fresh groceries, organic products, delivery, food shopping, daily essentials, subscription grocery",
-  authors: [{ name: "GOGO Ecommerce" }],
+  authors: [{ name  : "GOGO Ecommerce" }],
   creator: "GOGO Ecommerce",
   publisher: "GOGO",
   robots: {
